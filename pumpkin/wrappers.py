@@ -137,11 +137,11 @@ class Request(BaseObject):
 
 class Response(BaseObject):
 
-    def __init__(self, body):
+    def __init__(self, body, code=200, content_type='text/html'):
         self.headers = HttpHeaders()
         self._cookies = None
-        self._status = 200
-        self.content_type = 'text/html'
+        self._status = code
+        self.content_type = content_type
 
         # body
         self._body = body
