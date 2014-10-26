@@ -1,12 +1,13 @@
 import sys
 import re
+import os
 from functools import wraps
 
 if sys.version < '3':
     string_escape = 'string-escape'
 else:
     string_escape = 'unicode_escape'
-    
+
 """
 A simple template engine.
 """
@@ -59,9 +60,9 @@ class Walker(object):
 
     @property
     def extends(self):
-        """The {% extends %} tag is the key here. 
-        It tells the template engine that this template "extends" another template. 
-        When the template system evaluates this template, first it locates the parent. 
+        """The {% extends %} tag is the key here.
+        It tells the template engine that this template "extends" another template.
+        When the template system evaluates this template, first it locates the parent.
 
         The extends tag should be the first tag in the template.
         """
@@ -76,9 +77,9 @@ class Walker(object):
 class Writer(object):
 
     """ Writer is a important part of template engine, which provide
-        methods for different tokens and blocks. Writer consturct a 
+        methods for different tokens and blocks. Writer consturct a
         intermediate code for Python runtime compilinng and excuting,
-        the main class below 'Template ' will use this code for rendering 
+        the main class below 'Template ' will use this code for rendering
         and code generating.
     """
 
@@ -182,7 +183,8 @@ class Template(object):
                 break
             self.writer.write(
                 self.walker.buffer_before_token, indent, in_block_top())
-            variable, endblock, end, statement, keyword, suffix = token.groups()
+            variable, endblock, end, statement, keyword, suffix = token.groups(
+            )
             # print(token.groups())
             if suffix:
                 suffix = self.shave_dot(suffix)
@@ -263,4 +265,3 @@ def unescape(s):
     """
     return s.replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>')\
         .replace('&quot;', '"').replace('&#039;', "'")
-

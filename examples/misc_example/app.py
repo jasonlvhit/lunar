@@ -10,7 +10,7 @@ def hello():
 
 #/args?key=pumpkin&count=4
 @app.route('/args', methods=["GET"])
-def hello():
+def args():
     return (app.request.args["key"], app.request.args["count"])
 
 # template
@@ -55,6 +55,10 @@ def test_post():
         return app.render_template('test_post.html')
     return (app.request.forms["title"], app.request.forms["tag"])
 
+
+@app.route('/test_redirect')
+def test_redirect():
+    return app.redirect('/')
 
 if __name__ == '__main__':
     app.run()

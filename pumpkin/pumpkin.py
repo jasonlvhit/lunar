@@ -11,8 +11,8 @@ Pumpkin是一个玩具式的网络框架，基于PEP333和它的进化版PEP3333
 
 查看example来看看这是怎么运作的。
 
-Pumpkin is a WSGI based webframework in pure Python, without any third-party dependency. 
-Pumpkin include a simple router, which provide the request routing, a template engine 
+Pumpkin is a WSGI based webframework in pure Python, without any third-party dependency.
+Pumpkin include a simple router, which provide the request routing, a template engine
 for template rendering, a simple wrapper for WSGI request and response.
 
 Happy hacking.
@@ -162,12 +162,20 @@ class Pumpkin(object):
         context.update(app_namespace)
         return self.loader.load(file).render(**context)
 
+    def not_found(self):
+        response = Response(body='404 not found..pumpkin', code=404)
+        self._response = response
+        self._server_handler(self._response.status, self._response.headerlist)
+        return [response.body]
+
     def redirect(self, location, code=302):
+        if location == "404":
+            return self.not_found()
         response = Response(body='<p>Redirecting...</p>', code=code)
         response.headers['Location'] = location
         self._response = response
         self._server_handler(self._response.status, self._response.headerlist)
-        return [self._response.body]
+        # return [self._response.body]
         return response
 
     def url_for(self, fn):
@@ -191,6 +199,7 @@ class Pumpkin(object):
 
     def __call__(self, environ, start_response):
         self._server_handler = start_response
+        # start_response.im_self._flush()
         self._request.bind(environ)
         handler = None
         try:
@@ -205,10 +214,15 @@ class Pumpkin(object):
                 body = handler(**args)
             else:
                 body = handler()
+            print(body)
+            if isinstance(body, Response):
+                return body.body
             self._response.set_body(body=body)
+            self._response.set_status(200)
         except Exception:
             self._response.set_status(500)
- 
+            self._response.set_body("fucccccck")
+
         start_response(self._response.status, self._response.headerlist)
         return [self._response.body]
 

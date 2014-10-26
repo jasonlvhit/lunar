@@ -6,9 +6,11 @@ from collections import MutableMapping
 if sys.version < '3':
     import httplib
     from Cookie import SimpleCookie
+    from urlparse import parse_qs
 else:
     import http.client as httplib
     from http.cookies import SimpleCookie
+    from urllib.parse import parse_qs
 
 """
 A simple wrapper for base WSGI request and response.
@@ -18,10 +20,10 @@ A simple wrapper for base WSGI request and response.
 class HttpHeaders(MutableMapping):
 
     """ Wrapper for Http-like headers.
-        
+
         Dict-like key-value store, but keys are Http-Header-Case foramt.
-        value is a list, but the magic method __getitem__ will only return the 
-        latest value added. 
+        value is a list, but the magic method __getitem__ will only return the
+        latest value added.
     """
 
     def __init__(self, *args, **kwargs):
@@ -131,7 +133,7 @@ class Request(BaseObject):
     """
     @property
     def url(self):
-        return '\\'.join([self.environ.get('wsgi.url_scheme', '')]) 
+        return '\\'.join([self.environ.get('wsgi.url_scheme', '')])
     """
 
 
@@ -183,4 +185,3 @@ class Response(BaseObject):
 
     content_type = property(
         get_content_type, set_content_type, None, get_content_type.__doc__)
-
