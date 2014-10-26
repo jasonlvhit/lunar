@@ -162,26 +162,13 @@ class Pumpkin(object):
         context.update(app_namespace)
         return self.loader.load(file).render(**context)
 
-    """
-    def redirect(self, path, next=None, **kwargs):
-        # redirect just push the request into the queue of requests,
-        # and in the main loop of execution, all the jobs in queue will be 
-        # executed in turn.
-        
-        self._req_queue.put((path, 'GET', kwargs))
-        if next:
-            self._req_queue.put((next, 'GET', None))
-
-    def redirect(self, path, **kwargs):
-        self._request.environ['PATH_INFO'] = path
-        self._request.environ['REQUEST_METHOD'] = 'GET'
-        self._req_arg_queue.put((path, 'GET', kwargs))
-        return self.__call__(self.request.environ, self._server_handler)
-
-    """
-
-    def redirect(self, path):
-        pass
+    def redirect(self, location, code=302):
+        response = Response(body='<p>Redirecting...</p>', code=code)
+        response.headers['Location'] = location
+        self._response = response
+        self._server_handler(self._response.status, self._response.headerlist)
+        return [self._response.body]
+        return response
 
     def url_for(self, fn):
         return self._router.url_for(fn)
@@ -210,9 +197,9 @@ class Pumpkin(object):
             handler, args = self._router.get(
                 self._request.path, self._request.method)
         except TypeError:
-            self.redirect("404")
+            return self.redirect("404")
         if not handler:
-            self.redirect("404")
+            return self.redirect("404")
         try:
             if args:
                 body = handler(**args)
