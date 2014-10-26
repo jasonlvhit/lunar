@@ -20,7 +20,7 @@ Happy hacking.
 About pumpkin：
 
 洋葱、萝卜和番茄不相信世界上有南瓜这个东西，它们认为那只是空想。南瓜默默不说话，它只是继续成长。
-这句话来自当世界年纪还小的时候这本书的封底，希望我们都能成长为一只大大的南瓜。
+这句话来自《当世界年纪还小的时候》这本书的封底，希望我们都能成长为一只大大的南瓜。
 
 """
 
@@ -59,7 +59,7 @@ except (ImportError, AttributeError):
     pkg_resources = None
 
 
-""""
+"""
 A simple router.
 """
 
@@ -70,8 +70,8 @@ class RouterException(Exception):
 
 class Router(object):
 
-    '''Router object for request routing.
-    '''
+    """Router object for request routing.
+    """
 
     def __init__(self):
         self.rules = {}
@@ -619,8 +619,8 @@ class _Stack(object):
 
 class Pumpkin(object):
 
-    '''Main object of this funny web frameWork
-    '''
+    """Main object of this funny web frameWork
+    """
 
     def __init__(self, pkg_name, template='template', static='static'):
         # router
