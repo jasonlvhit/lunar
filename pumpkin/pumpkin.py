@@ -30,22 +30,11 @@ import re
 import sys
 
 from functools import wraps
-from Queue import Queue
-
-from collections import MutableMapping
 
 if sys.version < '3':
-    string_escape = 'string-escape'
-
-    import httplib
-    from Cookie import SimpleCookie
-    from urlparse import parse_qs
+    from Queue import Queue
 else:
-    string_escape = 'unicode_escape'
-
-    import http.client as httplib
-    from http.cookies import SimpleCookie
-    from urllib.parse import parse_qs
+    from queue import Queue
 
 try:
     import pkg_resources
