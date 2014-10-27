@@ -41,3 +41,14 @@ class TornadoServer(ServerAdapter):
         server = tornado.httpserver.HTTPServer(container)
         server.listen(port=self.port, address=self.host)
         tornado.ioloop.IOLoop.instance().start()
+
+# Twisted server for test purpose
+
+class TwistedServer(ServerAdapter):
+    def run(self, app):
+        from twisted.web import server, wsgi
+        from twisted.internet import reactor
+        resource = wsgi.WSGIResource(reactor, reactor.getThreadPool(), app)
+        server = server.Site(resource)
+        reactor.listenTCP(port=self.port, factory=server, interface=self.host)
+        reactor.run()
