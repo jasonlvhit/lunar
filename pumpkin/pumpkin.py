@@ -28,6 +28,7 @@ import cgi
 import os
 import re
 import sys
+import traceback
 
 from functools import wraps
 
@@ -44,7 +45,7 @@ except (ImportError, AttributeError):
 
 from .server import ServerAdapter
 from .server import WSGIRefServer
-from .template import Loader
+from .template import Loader, unescape
 from .wrappers import Request, Response
 from .router import Router
 
@@ -82,6 +83,18 @@ class _Stack(object):
     def __repr__(self):
         return "_app_stack with %s applications" % (len(self))
 
+class PumpkinException(Exception):
+    def __init__(self, code, response, server_handler, DEBUG = False):
+        self._DEBUG = DEBUG
+        self._response = response
+        self._response.set_status(code)
+        self._server_handler = server_handler
+
+    def __call__(self):
+        self._server_handler(self._response.status, self._response.headerlist)
+        if self._DEBUG:
+            return [traceback.format_exc().replace('\n', '<br>')]
+        return [self._response.status]
 
 class Pumpkin(object):
 
@@ -118,6 +131,9 @@ class Pumpkin(object):
         global _app_stack
         _app_stack.push(self)
 
+        # debug
+        self.DEBUG = False
+
     def set_template_engine(self, engine):
         self.loader.update_template_engine(engine)
 
@@ -142,7 +158,8 @@ class Pumpkin(object):
     def session(self):
         return self._session
 
-    def run(self, server=WSGIRefServer, host='localhost', port=8000):
+    def run(self, server=WSGIRefServer, host='localhost', port=8000, DEBUG = False):
+        self.DEBUG = DEBUG
         if isinstance(server, type) and issubclass(server, ServerAdapter):
             server = server(host=host, port=port)
 
@@ -206,22 +223,18 @@ class Pumpkin(object):
             handler, args = self._router.get(
                 self._request.path, self._request.method)
         except TypeError:
-            return self.redirect("404")
-        if not handler:
-            return self.redirect("404")
+            return PumpkinException(404, self._response, self._server_handler, self.DEBUG)()
         try:
             if args:
-                body = handler(**args)
+                r = handler(**args)
             else:
-                body = handler()
-            print(body)
-            if isinstance(body, Response):
-                return body.body
-            self._response.set_body(body=body)
+                r = handler()
+            if isinstance(r, Response):
+                return r.body
+            self._response.set_body(body=r)
             self._response.set_status(200)
-        except Exception:
-            self._response.set_status(500)
-            self._response.set_body("fucccccck")
+        except Exception as e:
+            return PumpkinException(500, self._response, self._server_handler, self.DEBUG)()
 
         start_response(self._response.status, self._response.headerlist)
         return [self._response.body]
