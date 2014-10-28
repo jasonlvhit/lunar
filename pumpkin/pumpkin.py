@@ -186,8 +186,6 @@ class Pumpkin(object):
         return [response.body]
 
     def redirect(self, location, code=302):
-        if location == "404":
-            return self.not_found()
         response = Response(body='<p>Redirecting...</p>', code=code)
         response.headers['Location'] = location
         self._response = response
