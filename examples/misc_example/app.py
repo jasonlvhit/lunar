@@ -4,13 +4,13 @@ app = Pumpkin('__main__')
 
 
 @app.route('/', methods=["GET", "POST"])
-def hello():
+def index():
     return "Hello, Pumpkin!"
 
 
 #/args?key=pumpkin&count=4
-@app.route('/args', methods=["GET"])
-def args():
+@app.route('/test_args', methods=["GET"])
+def test_args():
     return (app.request.args["key"], app.request.args["count"])
 
 # template
@@ -25,15 +25,13 @@ def template():
 def test_escape():
     return app.render_template('test_escape.html', content="<p>hello escape</p>")
 
-# url_for
-
 
 @app.route('/url_for')
 def test_url_for():
     return app.url_for(hello)
 
 
-@app.route('/session')
+@app.route('/push_session')
 def push_session():
     app.session['pumpkin'] = "a web framework"
     return app.session['pumpkin'].value
@@ -48,7 +46,6 @@ def show_session():
 def test_sync_args(id):
     return id
 
-
 @app.route('/test_post', methods=['GET', 'POST'])
 def test_post():
     if app.request.method == 'GET':
@@ -61,4 +58,4 @@ def test_redirect():
     return app.redirect('/')
 
 if __name__ == '__main__':
-    app.run()
+    app.run(DEBUG = True)
