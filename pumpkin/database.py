@@ -190,12 +190,13 @@ class ManyToManyField(object):
         self.rel = rel
         self.to_table = to_table
         self.id = None
+        self.self_id = None
 
     def update(self, name, tablename):
         self.name = name
         self.tablename = tablename
 
-    def all(self):
+    def _get_rel_names(self):
         rel_class = db.__tabledict__[self.rel]
         self_id = None
         rel_id = None
@@ -207,6 +208,10 @@ class ManyToManyField(object):
                     rel_id = name
         if not self_id or not rel_id:
             raise DatabaseException("No matched fields in relation table.")
+        return self_id, rel_id
+
+    def _select(self):
+        self_id, rel_id = self._get_rel_names()
         c = db.execute(
             'select "%s" from %s where %s = "%s";' % (
                 rel_id, self.rel, self_id, self.id)
@@ -214,13 +219,43 @@ class ManyToManyField(object):
         rs = c.fetchall()
         return db.__tabledict__[self.to_table].select().where(
             ' or '.join(['id = "%s"' % c[0] for c in rs])
-        ).all()
+        )
+
+    def all(self):
+        return self._select().all()
 
     def append(self, ins):
-        pass
+        """ 
+        p.tags.append(tag_instance)
+        -->
+        insert into rel_table(self_id, rel_id) values(self.id, ins.id);
+        """
+        self_id, rel_id = self._get_rel_names()
+        c = db.execute(
+            'insert into %s(%s, %s) values(%s, %s);' % (
+                self.rel, self_id, rel_id, self.id, ins.id
+            ), commit=True
+        )
+        return c
 
-    def remove(self, *args, **kwargs):
-        pass
+    def remove(self, *args):
+        """
+        p.tags.remove("tag_id = 1")
+        -->
+        delete from rel_table where self_id = self.id and tag_id = 1;
+        """
+        if not self.self_id:
+            self.self_id, _ = self._get_rel_names()
+        c = db.execute(
+            'delete from %s where %s = "%s" and %s;' % (
+                self.rel, self.self_id, self.id,
+                ' and '.join(list(args))
+            ), commit=True
+        )
+        return c
+
+    def count(self):
+        return self._select().count()
 
 
 class BaseModel(type):
@@ -308,6 +343,7 @@ class SelectQuery(BaseQuery):
         self.query = ['*']
         if args != ((), ):
             self.query = list(*args)
+        self.like_pattern = None
 
     @property
     def sql(self):
