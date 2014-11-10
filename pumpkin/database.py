@@ -292,6 +292,10 @@ class BaseQuery(object):
         pass
 
 
+class QueryException(DatabaseException):
+    pass
+
+
 class SelectQuery(BaseQuery):
 
     """ select title, content from post where id = 1 and title = "my title";
@@ -307,8 +311,15 @@ class SelectQuery(BaseQuery):
 
     @property
     def sql(self):
-        return self.base_statement % (', '.join([str(i).strip('\'').strip('"')
-                                                 for i in self.query]).strip(','), self.klass.__tablename__)
+        if self.like_pattern:
+            return self.base_statement % (
+                ', '.join([str(i).strip('\'').strip('"')
+                           for i in self.query]).strip(','), self.klass.__tablename__, self.like_pattern
+            )
+        return self.base_statement % (
+            ', '.join([str(i).strip('\'').strip('"')
+                       for i in self.query]).strip(','), self.klass.__tablename__
+        )
 
     def _make_instance(self, descriptor, r):
         ins = self.klass(**dict(zip(descriptor, r)))
@@ -373,11 +384,26 @@ class SelectQuery(BaseQuery):
     def groupby(self):
         pass
 
-    def orderby(self, asc=True):
-        pass
+    def orderby(self, order=None, by='asc'):
+        """
+        test_database.Post.select().orderby('id', 'asc').all()
+        """
+        if not column:
+            column = 'id'
+        self.base_statement = ' '.join(
+            [self.base_statement.strip(';'), 'order by', order, by, ';'])
+        return self
 
-    def like(self):
-        pass
+    def like(self, pattern):
+        """
+        test_database.Post.select('id').where('content').like('%cont%')
+        """
+        if 'where' not in self.base_statement:
+            raise QueryException("like query must have a where clause before.")
+        self.like_pattern = pattern or ''
+        self.base_statement = ''.join(
+            [self.base_statement.strip(';'), ' like "%s";'])
+        return self
 
 
 class UpdateQuery(BaseQuery):
