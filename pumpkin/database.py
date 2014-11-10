@@ -34,13 +34,11 @@ class Sqlite(Database):
     def create_table(self, model):
         c = []
         for field in model.__fields__.values():
-            print(field.sql)
             c.append(field.sql)
         cursor = self.conn.cursor()
         cursor.execute(
             'CREATE TABLE %s (%s);' % (model.__tablename__, ', '.join(c))
         )
-        self.__tabledict__[model.__tablename__] = model
         self.commit()
 
     def drop_table(self, model):
@@ -60,7 +58,6 @@ class Sqlite(Database):
             cofv.append('"' + str(v) + '"')
 
         cursor = self.conn.cursor()
-        
         cursor.execute(
             'INSERT INTO %s (%s) values (%s);' % (instance.__class__.__tablename__,
                                                   ', '.join(cofk), ', '.join(cofv))
@@ -141,10 +138,8 @@ class PrimaryKeyField(IntegerField):
 
 class ForeignKeyField(IntegerField):
 
-    """ trackartist INTEGER,
-            FOREIGN KEY(trackartist) REFERENCES artist(artistid)
-
-            trackId Integer NOT NULL REFERENCES "artist" ("id")
+    """ 
+        trackId Integer NOT NULL REFERENCES "artist" ("id")
     """
 
     def __init__(self, to_table):
@@ -165,21 +160,67 @@ class ForeignKeyField(IntegerField):
 
 class ForeignKeyReverseField(object):
 
-    def __init__(self, from_class):
+    def __init__(self, from_table):
         self.name = None
         self.tablename = None
-        self.from_class = from_class
+        self.from_table = from_table
         self.id = None
 
     def update(self, name, tablename):
         self.name = name
         self.tablename = tablename
+        self.from_class = db.__tabledict__[self.from_table]
         for name, attr in self.from_class.__dict__.items():
             if isinstance(attr, ForeignKeyField) and attr.to_table == self.tablename:
                 self.re = name
 
     def all(self):
         return self.from_class.select('*').where('='.join([self.re, str(self.id)])).all()
+
+    def count(self):
+        return self.from_class.select('*').where('='.join([self.re, str(self.id)])).count()
+
+
+class ManyToManyField(object):
+
+    def __init__(self, rel=None, to_table=None):
+        if not rel or not to_table:
+            raise DatabaseException(
+                "Many to many fields must set a rel table.")
+        self.rel = rel
+        self.to_table = to_table
+        self.id = None
+
+    def update(self, name, tablename):
+        self.name = name
+        self.tablename = tablename
+
+    def all(self):
+        rel_class = db.__tabledict__[self.rel]
+        self_id = None
+        rel_id = None
+        for name, field in rel_class.__fields__.items():
+            if isinstance(field, ForeignKeyField):
+                if field.to_table == self.tablename:
+                    self_id = name
+                elif field.to_table == self.to_table:
+                    rel_id = name
+        if not self_id or not rel_id:
+            raise DatabaseException("No matched fields in relation table.")
+        c = db.execute(
+            'select "%s" from %s where %s = "%s";' % (
+                rel_id, self.rel, self_id, self.id)
+        )
+        rs = c.fetchall()
+        return db.__tabledict__[self.to_table].select().where(
+            ' or '.join(['id = "%s"' % c[0] for c in rs])
+        ).all()
+
+    def append(self, ins):
+        pass
+
+    def remove(self, *args, **kwargs):
+        pass
 
 
 class BaseModel(type):
@@ -195,10 +236,12 @@ class BaseModel(type):
         else:
             setattr(cls, '__tablename__', cls.__name__.lower())
 
+        db.__tabledict__[cls.__tablename__] = cls
+
         has_primary_key = False
         setattr(cls, 'has_relationship', False)
         for name, attr in cls.__dict__.items():
-            if isinstance(attr, ForeignKeyReverseField):
+            if isinstance(attr, ForeignKeyReverseField) or isinstance(attr, ManyToManyField):
                 setattr(cls, 'has_relationship', True)
                 attr.update(name, cls.__tablename__)
                 refed_fields[name] = attr
@@ -217,7 +260,7 @@ class BaseModel(type):
         return cls
 
 
-class Model(object):
+class Model(metaclass=BaseModel):
     __metaclass__ = BaseModel
 
     def __init__(self, *args, **kwargs):
@@ -244,7 +287,8 @@ class Model(object):
 class BaseQuery(object):
     base_statement = ''
 
-    def where(self, *args, **kwargs):
+    @property
+    def sql(self):
         pass
 
 
@@ -263,7 +307,8 @@ class SelectQuery(BaseQuery):
 
     @property
     def sql(self):
-        return self.base_statement % (', '.join([str(i).strip('\'').strip('"') for i in self.query]).strip(','), self.klass.__tablename__)
+        return self.base_statement % (', '.join([str(i).strip('\'').strip('"')
+                                                 for i in self.query]).strip(','), self.klass.__tablename__)
 
     def _make_instance(self, descriptor, r):
         ins = self.klass(**dict(zip(descriptor, r)))
@@ -287,15 +332,46 @@ class SelectQuery(BaseQuery):
     def where(self, *args, **kwargs):
         c = ['%s = "%s"' % (k, str(v)) for k, v in kwargs.items()]
         if c != ((),):
-            c.extend(list(*args))
+            c.extend(list(args))
+        print(c, ' and '.join(c))
         self.base_statement = "select %s from %s where " + \
             ' and '.join(c) + ";"
         return self
+
+    def count(self):
+        sql = self.base_statement % (
+            'count("' + ', '.join([str(i).strip('\'').strip('"')
+                                   for i in self.query]).strip(',') + '")', self.klass.__tablename__
+        )
+        c = db.execute(sql)
+        rs = c.fetchone()
+        return rs[0]
+
+    def max(self):
+        pass
+
+    def min(self):
+        pass
+
+    def avg(self):
+        pass
+
+    def sum(self):
+        pass
 
     def join(self):
         pass
 
     def having(self):
+        pass
+
+    def groupby(self):
+        pass
+
+    def orderby(self, asc=True):
+        pass
+
+    def like(self):
         pass
 
 
