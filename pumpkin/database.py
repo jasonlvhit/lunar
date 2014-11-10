@@ -333,31 +333,36 @@ class SelectQuery(BaseQuery):
         c = ['%s = "%s"' % (k, str(v)) for k, v in kwargs.items()]
         if c != ((),):
             c.extend(list(args))
-        print(c, ' and '.join(c))
         self.base_statement = "select %s from %s where " + \
             ' and '.join(c) + ";"
         return self
 
-    def count(self):
+    def _base_function(self, func):
         sql = self.base_statement % (
-            'count("' + ', '.join([str(i).strip('\'').strip('"')
-                                   for i in self.query]).strip(',') + '")', self.klass.__tablename__
+            func + '("' + ', '.join([str(i).strip('\'').strip('"')
+                                     for i in self.query]).strip(',') + '")', self.klass.__tablename__
         )
         c = db.execute(sql)
         rs = c.fetchone()
         return rs[0]
 
+    def count(self):
+        return self._base_function('count')
+
     def max(self):
-        pass
+        """
+        Post.select('id').max()
+        """
+        return self._base_function('max')
 
     def min(self):
-        pass
+        return self._base_function('min')
 
     def avg(self):
-        pass
+        return self._base_function('avg')
 
     def sum(self):
-        pass
+        return self._base_function('sum')
 
     def join(self):
         pass
