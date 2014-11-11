@@ -258,10 +258,10 @@ class ManyToManyField(object):
         return self._select().count()
 
 
-class BaseModel(type):
+class MetaModel(type):
 
     def __new__(cls, name, bases, attrs):
-        cls = super(BaseModel, cls).__new__(cls, name, bases, attrs)
+        cls = super(MetaModel, cls).__new__(cls, name, bases, attrs)
         # fields
         fields = {}
         refed_fields = {}
@@ -295,8 +295,7 @@ class BaseModel(type):
         return cls
 
 
-class Model(metaclass=BaseModel):
-    __metaclass__ = BaseModel
+class Model(MetaModel('NewBase', (object, ), {})):
 
     def __init__(self, *args, **kwargs):
         for k, v in kwargs.items():
