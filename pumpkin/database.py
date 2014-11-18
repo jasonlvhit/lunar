@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """ A lightweight orm framework for sqlite.
-	
+    
 """
 import os
 import re
@@ -37,7 +37,7 @@ class Sqlite(Database):
             c.append(field.sql)
         cursor = self.conn.cursor()
         cursor.execute(
-            'CREATE TABLE %s (%s);' % (model.__tablename__, ', '.join(c))
+            'create table %s (%s);' % (model.__tablename__, ', '.join(c))
         )
         self.commit()
 
@@ -59,7 +59,7 @@ class Sqlite(Database):
 
         cursor = self.conn.cursor()
         cursor.execute(
-            'INSERT INTO %s (%s) values (%s);' % (instance.__class__.__tablename__,
+            'insert into %s (%s) values (%s);' % (instance.__class__.__tablename__,
                                                   ', '.join(cofk), ', '.join(cofv))
         )
         return cursor
@@ -138,17 +138,7 @@ class PrimaryKeyField(IntegerField):
 
 class ForeignKeyField(IntegerField):
 
-    """ 
-        trackId Integer NOT NULL REFERENCES "artist" ("id")
-    """
-
     def __init__(self, to_table):
-        """
-        try:
-                self.to_class = db.__tabledict__[to_table]
-        except KeyError:
-                raise DatabaseException('Referenced table did not exsited.')
-        """
         self.to_table = to_table
 
     @property
@@ -333,7 +323,7 @@ class QueryException(DatabaseException):
 class SelectQuery(BaseQuery):
 
     """ select title, content from post where id = 1 and title = "my title";
-            select title, content from post where id > 3;
+        select title, content from post where id > 3;
     """
 
     def __init__(self, klass, *args):
@@ -444,7 +434,7 @@ class SelectQuery(BaseQuery):
 class UpdateQuery(BaseQuery):
 
     """ update post set title = "new title", content = "new content" 
-            where id = 1;
+        where id = 1;
     """
 
     def __init__(self, klass, *args, **kwargs):

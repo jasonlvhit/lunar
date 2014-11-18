@@ -83,6 +83,7 @@ class _Stack(object):
     def __repr__(self):
         return "_app_stack with %s applications" % (len(self))
 
+
 class PumpkinException(Exception):
     def __init__(self, code, response, server_handler, DEBUG = False):
         self._DEBUG = DEBUG
@@ -93,8 +94,11 @@ class PumpkinException(Exception):
     def __call__(self):
         self._server_handler(self._response.status, self._response.headerlist)
         if self._DEBUG:
-            return [traceback.format_exc().replace('\n', '<br>')]
+            return '<br>'.join([self._response.status, traceback.format_exc().replace('\n', '<br>')])
         return [self._response.status]
+
+class Config(object):
+    pass
 
 class Pumpkin(object):
 
