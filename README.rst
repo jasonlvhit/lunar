@@ -1,6 +1,11 @@
-#####
-Pumpkin. A simple WSGI based webframework for learning.
-#####
+Pumpkin
+========
+
+A simple WSGI based webframework for learning.
+
+
+What is Pumpkin?
+----------------
 
 Pumpkin是一个玩具式的网络框架，基于PEP333和它的进化版PEP3333，它包括一个Router，
 一个Template engine，一个简单的WSGI Request和Response的封装，没有任何第三方包的依赖。
@@ -28,9 +33,12 @@ Happy hacking.
 
 
 
-About pumpkin：
+About Pumpkin
+--------------
 
 洋葱、萝卜和番茄不相信世界上有南瓜这个东西，它们认为那只是空想。南瓜默默不说话，它只是继续成长。
 这句话来自《当世界年纪还小的时候》这本书的封底，希望我们都能成长为一只大大的南瓜。
 
+Changelog
+----------
 * 2011/11/7： add a ORM framework module for sqlite.
