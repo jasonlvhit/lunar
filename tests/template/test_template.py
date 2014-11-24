@@ -1,6 +1,6 @@
 import os
 import unittest
-from template import Template, Loader
+from pumpkin.template import Template, Loader
 
 
 class BaseTests(unittest.TestCase):

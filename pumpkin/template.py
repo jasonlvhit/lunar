@@ -240,8 +240,8 @@ class Template(object):
 class Loader(object):
 
     def __init__(self, root='', e=Template):
-        if not root.endswith('\\'):
-            root += '\\'
+        if not root.endswith(os.sep):
+            root += os.sep
         self.root = root
         self.engine = e
 
@@ -249,8 +249,7 @@ class Loader(object):
         self.engine = e
 
     def load(self, filename):
-        p = '\\'.join([self.root, filename])
-        # print(p)
+        p = os.sep.join([self.root, filename])
         if not os.path.isfile(p):
             raise TemplateException("Template file %s didn't existed." % p)
         with open(p) as f:
