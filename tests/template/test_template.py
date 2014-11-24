@@ -1,6 +1,6 @@
 import os
 import unittest
-from pumpkin.pumpkin import Template, Loader
+from template import Template, Loader
 
 
 class BaseTests(unittest.TestCase):
@@ -168,6 +168,9 @@ class SubtemplateTest(unittest.TestCase):
         rendered = Loader(os.path.dirname(os.path.realpath(__file__))).load(
             'test_include.html').render()
         self.assertEqual(rendered, "<p>Included</p>")
+
+def runtest():
+    unittest.main()
 
 if __name__ == '__main__':
     unittest.main()
