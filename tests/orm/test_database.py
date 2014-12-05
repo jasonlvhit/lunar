@@ -2,60 +2,13 @@ from datetime import datetime
 import unittest
 import sqlite3
 
-import database
-
-class Post_Tag_Re(database.Model):
-    """
-    Many to many relationship test.
-    """
-    id = database.PrimaryKeyField()
-    post_id = database.ForeignKeyField('self_define_post')
-    tag_id = database.ForeignKeyField('tag')
-
-    def __repr__(self):
-        return '<Relation table post_id = %s, tag_id = %s>' %(
-            post_id, tag_id
-            )
-
-
-class Post(database.Model):
-    __tablename__ = 'self_define_post'
-
-    id = database.PrimaryKeyField()
-    title = database.CharField(100)
-    content = database.TextField()
-    pub_date = database.DateField()
-
-    author_id = database.ForeignKeyField('author')
-    tags = database.ManyToManyField(rel = 'post_tag_re', to_table = 'tag')
-
-    def __repr__(self):
-        return '<Post %s>' % self.title
-
-
-class Author(database.Model):
-    id = database.PrimaryKeyField()
-    name = database.CharField(100)
-
-    posts = database.ForeignKeyReverseField('self_define_post')
-
-    def __repr__(self):
-        return '<Author %s>' % self.name
-
-class Tag(database.Model):
-    id = database.PrimaryKeyField()
-    name = database.CharField(100)
-
-    posts = database.ManyToManyField(rel = 'post_tag_re', to_table = 'self_define_post')
-
-    def __repr__(self):
-        return '<Tag %s>' % self.name
-
+from pumpkin import database
+from models import Post_Tag_Re, Post, Author, Tag
 
 def get_cursor():
     return database.db.conn.cursor()
 
-def setup():
+def setup_database():
     database.db.create_table(Author)
     database.db.create_table(Post)
     database.db.create_table(Tag)
@@ -68,15 +21,21 @@ def setup():
         get_cursor().execute('insert into self_define_post(title, content, author_id) values("test title %s", "test content %s", %s);' % (str(i), str(i), str(i)))
         
     for i in range(0, 5):
-        get_cursor().execute('insert into tag(name) ')
+        get_cursor().execute('insert into tag(name) values("test tag ' + str(i) +'");')
+
+def teardown_database():
+    database.db.drop_table(Author)
+    database.db.drop_table(Post)
+    database.db.drop_table(Tag)
+    database.db.drop_table(Post_Tag_Re)
 
 class BaseTests(unittest.TestCase):
 
     def setUp(self):
-        pass
+        setup_database()
 
     def tearDown(self):
-        pass
+        teardown_database()
 
     def test_create_table(self):
         pass
@@ -98,12 +57,12 @@ class BaseTests(unittest.TestCase):
 
     def test_init(self):
         init_dict = {
-        'author': <class 'test_database.Author'>, 
-        'newbase': <class 'database.NewBase'>, 
-        'tag': <class 'test_database.Tag'>, 
-        'post_tag_re': <class 'test_database.Post_Tag_Re'>, 
-        'model': <class 'database.Model'>, 
-        'self_define_post': <class 'test_database.Post'>,
+        'author': Author, 
+        'newbase': database.MetaModel('NewBase', (object, ), {}), 
+        'tag': Tag, 
+        'post_tag_re': Post_Tag_Re, 
+        'model': database.Model, 
+        'self_define_post': Post,
         }
 
         self.assertEqual(init_dict, database.db.__tabledict__)
@@ -125,11 +84,11 @@ class ModelTests(unittest.TestCase):
 
     def test_fields(self):
         post_fields = {
-        'pub_date': <database.DateField object at 0x0000000002A98BA8>, 
-        'title': <database.CharField object at 0x0000000002A98630>, 
-        'author_id': <database.ForeignKeyField object at 0x0000000002A9F358>, 
-        'id': <database.PrimaryKeyField object at 0x0000000002B5CB70>, 
-        'content': <database.TextField object at 0x0000000002A988D0>
+        'pub_date': database.DateField, 
+        'title': database.CharField, 
+        'author_id': database.ForeignKeyField, 
+        'id': database.PrimaryKeyField, 
+        'content': database.TextField
         }
         self.assertEqual(post_fields.keys(), Post.__fields__.keys())
 
@@ -154,9 +113,8 @@ class QueryTests(unittest.TestCase):
     def test_add(self):
         for i in range(0, 5):
             p = Post(title = "test post " + str(i), content = "test content " + str(i))
-
-        database.db.add(post)
-        database.db.commit()
+            database.db.add(p)
+            database.db.commit()
 
     def test_get(self):
         p1 = Post.get(id=1)
