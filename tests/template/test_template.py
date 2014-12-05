@@ -153,9 +153,9 @@ class SubtemplateTest(unittest.TestCase):
 
     def test_extends(self):
         rendered = Loader(os.path.dirname(os.path.realpath(__file__))).load(
-            'test_extends.html').render(title='lunar')
+            'test_extends.html').render(title='pumpkin')
         self.assertEqual(rendered, '''<html>
-<title>lunar</title>
+<title>pumpkin</title>
 <head>
 <p>Hello, this is pumpkin.</p>
 </head>

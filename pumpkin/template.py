@@ -17,7 +17,6 @@ class Walker(object):
 
     """ Read the source code, provide the token for
         Parser.
-
     """
 
     def __init__(self, text):
@@ -84,7 +83,7 @@ class Writer(object):
     """
 
     def __init__(self):
-        self.co = []
+        self.co = [] # python intermediate code
         self._blocks = {}
 
     def dispatcher(fn):
@@ -99,7 +98,7 @@ class Writer(object):
 
     @dispatcher
     def write(self, s, indent, block=None):
-        return ''.join([' ' * indent, '_stdout.append(\'\'\' ', s, ' \'\'\')\n'])
+        return ''.join([' ' * indent, '_stdout.append(\'\'\'', s, '\'\'\')\n'])
 
     @dispatcher
     def write_var(self, s, indent, block=None):
@@ -160,7 +159,6 @@ class Template(object):
             if g.group('name') in self.writer._blocks.keys():
                 _t = _t.replace(
                     g.group(), ''.join(self.writer._blocks[g.group('name')]))
-        # print(_t)
         return compile(_t, '<string>', 'exec')
 
     def parse(self):
@@ -178,14 +176,15 @@ class Template(object):
             self.parents = Loader(self.path).load(self.shave_dot(_tmp))
         while not self.walker.empty:
             token = self.walker.next_token
+            # Just normal text, simply write it out.
             if not token:
                 self.writer.write(self.walker.remain, indent, in_block_top())
                 break
             self.writer.write(
                 self.walker.buffer_before_token, indent, in_block_top())
+
             variable, endblock, end, statement, keyword, suffix = token.groups(
             )
-            # print(token.groups())
             if suffix:
                 suffix = self.shave_dot(suffix)
             if variable:
@@ -216,7 +215,7 @@ class Template(object):
                     ' '.join([keyword, suffix, ':']), indent, in_block_top())
                 indent += 1
             else:
-                raise TemplateException('fuck.')
+                raise TemplateException('Template syntax error.')
         return self
 
     def html_escape(self, s):
@@ -251,7 +250,7 @@ class Loader(object):
     def load(self, filename):
         p = os.sep.join([self.root, filename])
         if not os.path.isfile(p):
-            raise TemplateException("Template file %s didn't existed." % p)
+            raise TemplateException("Template file '%s' does not exist." % p)
         with open(p) as f:
             return self.engine(f.read(), path=self.root)
 
