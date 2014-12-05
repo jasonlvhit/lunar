@@ -17,7 +17,6 @@ class Walker(object):
 
     """ Read the source code, provide the token for
         Parser.
-
     """
 
     def __init__(self, text):
@@ -99,7 +98,7 @@ class Writer(object):
 
     @dispatcher
     def write(self, s, indent, block=None):
-        return ''.join([' ' * indent, '_stdout.append(\'\'\' ', s, ' \'\'\')\n'])
+        return ''.join([' ' * indent, '_stdout.append(\'\'\'', s, '\'\'\')\n'])
 
     @dispatcher
     def write_var(self, s, indent, block=None):
@@ -178,14 +177,15 @@ class Template(object):
             self.parents = Loader(self.path).load(self.shave_dot(_tmp))
         while not self.walker.empty:
             token = self.walker.next_token
+            # Just normal text, simply wirte it
             if not token:
                 self.writer.write(self.walker.remain, indent, in_block_top())
                 break
             self.writer.write(
                 self.walker.buffer_before_token, indent, in_block_top())
+
             variable, endblock, end, statement, keyword, suffix = token.groups(
             )
-            # print(token.groups())
             if suffix:
                 suffix = self.shave_dot(suffix)
             if variable:
