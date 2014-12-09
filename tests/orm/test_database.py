@@ -54,7 +54,7 @@ class BaseTests(unittest.TestCase):
 
     def test_commit(self):
         pass
-
+        
     def test_init(self):
         init_dict = {
         'author': Author, 
@@ -68,13 +68,8 @@ class BaseTests(unittest.TestCase):
         self.assertEqual(init_dict, database.db.__tabledict__)
 
 
-class ModelTests(unittest.TestCase):
 
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
+class ModelTests(BaseTests):
 
     def test_self_define_tablename(self):
         self.assertEqual(Post.__tablename__, 'self_define_post')
@@ -102,13 +97,7 @@ class ModelTests(unittest.TestCase):
         pass
         
 
-class QueryTests(unittest.TestCase):
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
+class QueryTests(BaseTests):
 
     def test_add(self):
         for i in range(0, 5):
@@ -159,13 +148,7 @@ class QueryTests(unittest.TestCase):
         pass
 
 
-class TestBasicFunction(unittest.TestCase):
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
+class TestBasicFunction(BaseTests):
 
     def test_count(self):
         c1 = Post.select().count()
@@ -181,7 +164,7 @@ class TestBasicFunction(unittest.TestCase):
         pass
 
     def test_sum(self):
-        pass
+          pass
 
 if __name__ == '__main__':
     pass

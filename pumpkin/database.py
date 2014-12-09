@@ -39,6 +39,9 @@ class Sqlite(Database):
         cursor.execute(
             'create table %s (%s);' % (model.__tablename__, ', '.join(c))
         )
+        if not model.__tablename__ in self.__tabledict__.keys():
+            self.__tabledict__[model.__tablename__] = model
+
         self.commit()
 
     def drop_table(self, model):
