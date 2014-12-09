@@ -61,7 +61,7 @@ class Router(object):
             self.rules[p] = fn
 
     def __call__(self, p, method='GET'):
-        return self.get(p, mathod)
+        return self.get(p, method)
 
     def get(self, path, method='GET'):
         try:
@@ -74,7 +74,7 @@ class Router(object):
         if f not in self.methods.get(method):
             raise RouterException(
                 "Request method %s not allowed in this app." % method)
-        return (f, args)
+        return f, args
 
     def _match_path(self, p):
         for k in self.rules:
@@ -84,7 +84,7 @@ class Router(object):
             elif isinstance(k[0], type(re.compile('dommy'))):
                 _g = k[0].match(p)
                 if _g:
-                    return (self.rules[k], {k[1]: _g.group('args')})
+                    return self.rules[k], {k[1]: _g.group('args')}
 
     def url_for(self, fn):
         if not callable(object):

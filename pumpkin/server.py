@@ -33,11 +33,11 @@ class WSGIRefServer(ServerAdapter):
 
 class TornadoServer(ServerAdapter):
 
-    def run(self, handler):
+    def run(self, app):
         import tornado.wsgi
         import tornado.httpserver
         import tornado.ioloop
-        container = tornado.wsgi.WSGIContainer(handler)
+        container = tornado.wsgi.WSGIContainer(app)
         server = tornado.httpserver.HTTPServer(container)
         server.listen(port=self.port, address=self.host)
         tornado.ioloop.IOLoop.instance().start()

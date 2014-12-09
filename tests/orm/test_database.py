@@ -5,8 +5,10 @@ import sqlite3
 from pumpkin import database
 from models import Post_Tag_Re, Post, Author, Tag
 
+
 def get_cursor():
     return database.db.conn.cursor()
+
 
 def setup_database():
     database.db.create_table(Author)
@@ -14,14 +16,17 @@ def setup_database():
     database.db.create_table(Tag)
     database.db.create_table(Post_Tag_Re)
 
-    for i in range(0, 5):
-        get_cursor().execute('insert into author(name) values("test author ' + str(i) +'");')
+    for i in range(1, 6):
+        get_cursor().execute('insert into author(name) values("test author ' + str(i) + '");')
 
-    for i in range(0, 5):
-        get_cursor().execute('insert into self_define_post(title, content, author_id) values("test title %s", "test content %s", %s);' % (str(i), str(i), str(i)))
-        
-    for i in range(0, 5):
-        get_cursor().execute('insert into tag(name) values("test tag ' + str(i) +'");')
+    for i in range(1, 6):
+        get_cursor().execute(
+            'insert into self_define_post(title, content, author_id) values("test title %s", "test content %s", %s);' % (
+                str(i), str(i), str(i)))
+
+    for i in range(1, 6):
+        get_cursor().execute('insert into tag(name) values("test tag ' + str(i) + '");')
+
 
 def teardown_database():
     database.db.drop_table(Author)
@@ -29,8 +34,8 @@ def teardown_database():
     database.db.drop_table(Tag)
     database.db.drop_table(Post_Tag_Re)
 
-class BaseTests(unittest.TestCase):
 
+class BaseTests(unittest.TestCase):
     def setUp(self):
         setup_database()
 
@@ -54,23 +59,21 @@ class BaseTests(unittest.TestCase):
 
     def test_commit(self):
         pass
-        
+
     def test_init(self):
         init_dict = {
-        'author': Author, 
-        'newbase': database.MetaModel('NewBase', (object, ), {}), 
-        'tag': Tag, 
-        'post_tag_re': Post_Tag_Re, 
-        'model': database.Model, 
-        'self_define_post': Post,
+            'author': Author,
+            'newbase': database.MetaModel('NewBase', (object, ), {}),
+            'tag': Tag,
+            'post_tag_re': Post_Tag_Re,
+            'model': database.Model,
+            'self_define_post': Post,
         }
 
         self.assertEqual(init_dict, database.db.__tabledict__)
 
 
-
 class ModelTests(BaseTests):
-
     def test_self_define_tablename(self):
         self.assertEqual(Post.__tablename__, 'self_define_post')
 
@@ -79,11 +82,11 @@ class ModelTests(BaseTests):
 
     def test_fields(self):
         post_fields = {
-        'pub_date': database.DateField, 
-        'title': database.CharField, 
-        'author_id': database.ForeignKeyField, 
-        'id': database.PrimaryKeyField, 
-        'content': database.TextField
+            'pub_date': database.DateField,
+            'title': database.CharField,
+            'author_id': database.ForeignKeyField,
+            'id': database.PrimaryKeyField,
+            'content': database.TextField
         }
         self.assertEqual(post_fields.keys(), Post.__fields__.keys())
 
@@ -95,19 +98,28 @@ class ModelTests(BaseTests):
 
     def test_relationship(self):
         pass
-        
+
 
 class QueryTests(BaseTests):
 
     def test_add(self):
-        for i in range(0, 5):
-            p = Post(title = "test post " + str(i), content = "test content " + str(i))
-            database.db.add(p)
-            database.db.commit()
+        author = Author(name='test author 6')
+        database.db.add(author)
+        database.db.commit()
+        post = Post(title='test title 6', content='test content 6', author_id='6', pub_date=datetime.now())
+        database.db.add(post)
+        database.db.commit()
+        c = database.db.execute('select * from author;')
+        self.assertEqual(len(c.fetchall()), 6)
+        c = database.db.execute('select * from self_define_post;')
+        self.assertEqual(len(c.fetchall()), 6)
 
     def test_get(self):
-        p1 = Post.get(id=1)
-        p2 = Post.get(id=1, content="hello")
+        p1 = Post.get(id=1)[0]
+        self.assertEqual(p1.title, 'test title 1')
+        self.assertEqual(p1.content, 'test content 1')
+        self.assertEqual(p1.author_id, 1)
+
 
     def test_select(self):
         p1 = Post.select('*').where(id=2).all()
@@ -130,9 +142,9 @@ class QueryTests(BaseTests):
         posts = Tag.select().first().posts.all()
         tags = Post.select().first().tags.all()
 
-    
+
     def test_mtom_append(self):
-        p = Post.get(id = 1)[0]
+        p = Post.get(id=1)[0]
         p.tags.append(Tag.select().first())
 
     def test_mtom_remove(self):
@@ -149,7 +161,6 @@ class QueryTests(BaseTests):
 
 
 class TestBasicFunction(BaseTests):
-
     def test_count(self):
         c1 = Post.select().count()
         c2 = Post.select().where("id > 3").count()
@@ -164,7 +175,8 @@ class TestBasicFunction(BaseTests):
         pass
 
     def test_sum(self):
-          pass
+        pass
+
 
 if __name__ == '__main__':
     pass

@@ -6,10 +6,10 @@ import os
 import re
 import sqlite3
 
-PUMPKIN_CONFIG = {}
-PUMPKIN_CONFIG.setdefault(
-    'DATABASE_NAME', os.environ.get('PUMPKIN_DATABASE', 'pumpkin.db'))
+from pumpkin import _app_stack
 
+
+PUMPKIN_CONFIG = _app_stack.top().config
 
 class Database(object):
     pass
@@ -210,6 +210,8 @@ class ManyToManyField(object):
                 rel_id, self.rel, self_id, self.id)
         )
         rs = c.fetchall()
+        if len(rs) == 0:
+            return db.__tabledict__[self.to_table].select().where('id=-1')
         return db.__tabledict__[self.to_table].select().where(
             ' or '.join(['id = "%s"' % c[0] for c in rs])
         )

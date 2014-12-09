@@ -23,7 +23,7 @@ class Post(database.Model):
     pub_date = database.DateField()
 
     author_id = database.ForeignKeyField('author')
-    tags = database.ManyToManyField(rel = 'post_tag_re', to_table = 'tag')
+    tags = database.ManyToManyField(rel='post_tag_re', to_table='tag')
 
     def __repr__(self):
         return '<Post %s>' % self.title
@@ -42,7 +42,7 @@ class Tag(database.Model):
     id = database.PrimaryKeyField()
     name = database.CharField(100)
 
-    posts = database.ManyToManyField(rel = 'post_tag_re', to_table = 'self_define_post')
+    posts = database.ManyToManyField(rel='post_tag_re', to_table='self_define_post')
 
     def __repr__(self):
         return '<Tag %s>' % self.name

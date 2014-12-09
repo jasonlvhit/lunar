@@ -76,8 +76,8 @@ class Walker(object):
 class Writer(object):
 
     """ Writer is a important part of template engine, which provide
-        methods for different tokens and blocks. Writer consturct a
-        intermediate code for Python runtime compilinng and excuting,
+        methods for different tokens and blocks. Writer construct a
+        intermediate code for Python runtime compiling and executing,
         the main class below 'Template ' will use this code for rendering
         and code generating.
     """
@@ -239,8 +239,6 @@ class Template(object):
 class Loader(object):
 
     def __init__(self, root='', e=Template):
-        if not root.endswith(os.sep):
-            root += os.sep
         self.root = root
         self.engine = e
 
@@ -248,7 +246,9 @@ class Loader(object):
         self.engine = e
 
     def load(self, filename):
-        p = os.sep.join([self.root, filename])
+        if not self.root.endswith(os.sep):
+            self.root += os.sep
+        p = ''.join([self.root, filename])
         if not os.path.isfile(p):
             raise TemplateException("Template file '%s' does not exist." % p)
         with open(p) as f:

@@ -47,7 +47,7 @@ from .server import ServerAdapter
 from .server import WSGIRefServer
 from .template import Loader, unescape
 from .wrappers import Request, Response
-from .router import Router
+from .router import Router, RouterException
 
 """
 The Main object of pumpkin.
@@ -119,7 +119,7 @@ class Pumpkin(object):
         self.root_path = self._get_package_path(
             self.package_name).replace('\\', '\\\\')  # '\u' escape
 
-        self.loader = Loader('\\\\'.join([self.root_path, template]))
+        self.loader = Loader(os.sep.join([self.root_path, template]))
 
         # static file
         self.static_folder = static
@@ -138,6 +138,10 @@ class Pumpkin(object):
         # debug
         self.DEBUG = False
 
+        # config
+        self.config = {}
+        self.config.setdefault('DATABASE_NAME', 'pumpkin.db')
+
     def set_template_engine(self, engine):
         self.loader.update_template_engine(engine)
 
@@ -149,8 +153,8 @@ class Pumpkin(object):
             return os.getcwd()
 
     def route(self, path=None, methods=['GET']):
-        if path == None:
-            raise RouterException
+        if path is None:
+            raise RouterException()
         methods = [m.upper() for m in methods]
 
         def wrapper(fn):
