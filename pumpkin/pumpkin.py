@@ -24,11 +24,11 @@ About pumpkin：
 
 """
 
-import cgi
 import os
-import re
+import time
 import sys
 import traceback
+import mimetypes
 
 from functools import wraps
 
@@ -47,7 +47,7 @@ from .server import ServerAdapter
 from .server import WSGIRefServer
 from .template import Loader, unescape
 from .wrappers import Request, Response
-from .router import Router, RouterException
+from router import Router, RouterException
 
 """
 The Main object of pumpkin.
@@ -97,8 +97,33 @@ class PumpkinException(Exception):
             return '<br>'.join([self._response.status, traceback.format_exc().replace('\n', '<br>')])
         return [self._response.status]
 
-class Config(object):
-    pass
+
+class StaticException(Exception):
+    def __init__(self, path):
+        self.response = Response(None)
+
+        if not os.path.exists(path) or not os.path.isfile(path):
+            self.response.set_body(body='404 Not found')
+            self.response.set_status(404)
+            return
+
+        mimetype='text/plain'
+        guess_type = mimetypes.guess_type(path)[0]
+        if guess_type:
+            self.response.set_content_type(guess_type)
+        else:
+            self.response.set_content_type(mimetype)
+
+        stats = os.stat(path)
+        if 'Content-Length' not in self.response.headers.keys():
+            self.response.headers['Content-Length'] = str(stats.st_size)
+        if 'Last-Modified' not in self.response.headers.keys():
+            ts = time.gmtime(stats.st_mtime)
+            ts = time.strftime("%a, %d %b %Y %H:%M:%S +0000", ts)
+            self.response.headers['Last-Modified'] = ts
+
+        self.response.set_body(body=(open(path, 'r').read()))
+
 
 class Pumpkin(object):
 
@@ -131,16 +156,16 @@ class Pumpkin(object):
         self._req_arg_queue = Queue()
         self._server_handler = None
 
-        # push to the _app_stack
-        global _app_stack
-        _app_stack.push(self)
-
         # debug
         self.DEBUG = False
 
         # config
         self.config = {}
         self.config.setdefault('DATABASE_NAME', 'pumpkin.db')
+
+        # push to the _app_stack
+        global app_stack
+        app_stack.push(self)
 
     def set_template_engine(self, engine):
         self.loader.update_template_engine(engine)
@@ -166,7 +191,7 @@ class Pumpkin(object):
     def session(self):
         return self._session
 
-    def run(self, server=WSGIRefServer, host='localhost', port=8000, DEBUG = False):
+    def run(self, server=WSGIRefServer, host='localhost', port=8000, DEBUG=False):
         self.DEBUG = DEBUG
         if isinstance(server, type) and issubclass(server, ServerAdapter):
             server = server(host=host, port=port)
@@ -209,8 +234,8 @@ class Pumpkin(object):
             <link type="text/css" rel="stylesheet" href="{{ app.load_static('style.css') }}" />
         """
         if path:
-            return '\\'.join([self.root_path, path, filename]).replace("\\\\", "\\")
-        return '\\'.join([self.root_path, self.static_folder, filename]).replace("\\\\", "\\")
+            return os.sep.join([self.root_path, path, filename]).replace("\\\\", "\\")[1:]
+        return os.sep.join([self.root_path, self.static_folder, filename]).replace("\\\\", "\\")[1:]
 
     @property
     def request(self):
@@ -224,10 +249,13 @@ class Pumpkin(object):
         self._server_handler = start_response
         # start_response.im_self._flush()
         self._request.bind(environ)
-        handler = None
         try:
             handler, args = self._router.get(
                 self._request.path, self._request.method)
+        except StaticException as e:
+            self._response = e.response
+            start_response(self._response.status, self._response.headerlist)
+            return [self._response.body]
         except TypeError:
             return PumpkinException(404, self._response, self._server_handler, self.DEBUG)()
         try:
@@ -251,14 +279,14 @@ default methods and properties
 """
 
 # global app stack.
-_app_stack = _Stack()
+app_stack = _Stack()
 
 # default app
-default_app = _app_stack.top()
+default_app = app_stack.top()
 if not default_app:  # hack for shell
     default_app = Pumpkin('/')
 
 # shell
-request = _app_stack.top().request
-response = _app_stack.top().response
-session = _app_stack.top().session
+request = app_stack.top().request
+response = app_stack.top().response
+session = app_stack.top().session

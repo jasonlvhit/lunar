@@ -1,14 +1,12 @@
 import sys
 import re
 
+import pumpkin
 if sys.version < '3':
     from urlparse import parse_qs
 else:
     from urllib.parse import parse_qs
 
-"""
-A simple router.
-"""
 
 
 class RouterException(Exception):
@@ -32,7 +30,11 @@ class Router(object):
         # weird in python 3: get nothing to repeat error in python 3
         # http://stackoverflow.com/questions/3675144/regex-error-nothing-to-repeat
         self.url_pattern = re.compile(
-            r'(?P<prefix>(/\w*)+)(?P<suffix><(?P<type>\w*)?:(?P<arg>\w*)>)?')
+            ''' (?P<static>([:\\\\/\w\d]*)\\.(\\w+)) #static
+                |
+                (?P<prefix>(/\\w*)+)(?P<suffix><(?P<type>\\w*)?:(?P<arg>\\w*)>)?
+            ''', re.VERBOSE
+        )
 
         # methods
         self.methods = {}
@@ -77,11 +79,14 @@ class Router(object):
         return f, args
 
     def _match_path(self, p):
+        if self.url_pattern.match(p).group('static'):
+            raise pumpkin.StaticException(p)
+
         for k in self.rules:
             if isinstance(k, str):
                 if k == p:
                     return self.rules[k], None
-            elif isinstance(k[0], type(re.compile('dommy'))):
+            elif isinstance(k[0], type(re.compile('dummy'))):
                 _g = k[0].match(p)
                 if _g:
                     return self.rules[k], {k[1]: _g.group('args')}

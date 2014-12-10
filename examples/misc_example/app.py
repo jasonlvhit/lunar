@@ -28,7 +28,7 @@ def test_escape():
 
 @app.route('/url_for')
 def test_url_for():
-    return app.url_for(hello)
+    return app.url_for(index)
 
 
 @app.route('/push_session')

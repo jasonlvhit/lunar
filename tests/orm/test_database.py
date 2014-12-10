@@ -1,6 +1,5 @@
 from datetime import datetime
 import unittest
-import sqlite3
 
 from pumpkin import database
 from models import Post_Tag_Re, Post, Author, Tag
@@ -120,23 +119,38 @@ class QueryTests(BaseTests):
         self.assertEqual(p1.content, 'test content 1')
         self.assertEqual(p1.author_id, 1)
 
-
     def test_select(self):
         p1 = Post.select('*').where(id=2).all()
-        p2 = Post.select().where("id > 0").all()
+        self.assertEqual(len(p1), 1)
+        self.assertEqual(p1[0].id, 2)
+        p2 = Post.select().where("id < 5").all()
+        self.assertEqual(len(p2), 4)
+        self.assertEqual([1, 2, 3, 4], [i.id for i in p2])
+
         p3 = Post.select().first()
+        self.assertEqual(p3.id, 1)
 
     def test_delete(self):
-        p = Post.delete(id=1).commit()
-        p = Post.delete('id > 0').commit()
+        p1 = Post.delete(id=1).commit()
+        self.assertEqual(p1.rowcount, 1)
+        p2 = Post.delete(id=1).commit()
+        self.assertEqual(p2.rowcount, 0)
+
+        p3 = Post.delete('id < 3').commit()
+        self.assertEqual(p3.rowcount, 1)
 
     def test_update(self):
-        p = Post.update(id=1).set(title="new title").commit()
-        p = Post.update("id > 2").set(
-            title="new title", content="new content").commit()
+        p1 = Post.update(id=5).set(title="new title 5").commit()
+        self.assertEqual(p1.rowcount, 1)
+        p2 = Post.get(id=5)[0]
+        self.assertEqual(p2.title, 'new title 5')
+        p3 = Post.update(id=-1).set(title="unexisted id").commit()
+        self.assertEqual(p3.rowcount, 0)
 
     def test_foreignkeyfields(self):
-        posts = Author.select().first().posts.all()
+        posts = Author.get(id=5)[0].posts.all()
+        self.assertEqual(len(posts), 1)
+        self.assertEqual(posts[0].id, 5)
 
     def test_many_to_many(self):
         posts = Tag.select().first().posts.all()
@@ -163,19 +177,29 @@ class QueryTests(BaseTests):
 class TestBasicFunction(BaseTests):
     def test_count(self):
         c1 = Post.select().count()
+        self.assertEqual(c1, 5)
         c2 = Post.select().where("id > 3").count()
+        self.assertEqual(c2, 2)
 
     def test_max(self):
-        pass
+        c1 = Post.select('id').max()
+        self.assertEqual(c1, 5)
+        c2 = Post.select('id').where('id < 3').max()
+        self.assertEqual(c2, 2)
+        c3 = Post.select('id').where('id > 10').max()
+        self.assertEqual(c3, None)
 
     def test_min(self):
-        pass
+        c1 = Post.select('id').min()
+        self.assertEqual(c1, 1)
 
     def test_avg(self):
-        pass
+        c1 = Post.select('id').avg()
+        self.assertEqual(c1, 3)
 
     def test_sum(self):
-        pass
+        c1 = Post.select('id').sum()
+        self.assertEqual(c1, 15)
 
 
 if __name__ == '__main__':

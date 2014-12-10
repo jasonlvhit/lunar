@@ -2,14 +2,13 @@
 """ A lightweight orm framework for sqlite.
     
 """
-import os
-import re
+
 import sqlite3
 
-from pumpkin import _app_stack
+from pumpkin import app_stack
 
 
-PUMPKIN_CONFIG = _app_stack.top().config
+PUMPKIN_CONFIG = app_stack.top().config
 
 class Database(object):
     pass
@@ -418,8 +417,6 @@ class SelectQuery(BaseQuery):
         """
         test_database.Post.select().orderby('id', 'asc').all()
         """
-        if not column:
-            column = 'id'
         self.base_statement = ' '.join(
             [self.base_statement.strip(';'), 'order by', order, by, ';'])
         return self
