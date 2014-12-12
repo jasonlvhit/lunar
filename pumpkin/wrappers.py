@@ -150,9 +150,9 @@ class Response(BaseObject):
         self.content_type = content_type
 
         # body
-        self._body = body
-        if sys.version > '3' and isinstance(body, str):
-            self._body = bytes(body, 'iso-8859-1')
+        self._body = str(body)
+        if sys.version > '3':
+            self._body = bytes(self._body, 'iso-8859-1')
 
     @property
     def cookies(self):
@@ -181,10 +181,10 @@ class Response(BaseObject):
         return self._body
 
     def set_body(self, body):
-        self._body = body
+        self._body = str(body)
         # Python 3 Bytes hack
         if sys.version > '3':
-            self._body = bytes(body, 'iso-8859-1')
+            self._body = bytes(self._body, 'iso-8859-1')
 
     def get_content_type(self):
         return self.headers['Content-Type']
