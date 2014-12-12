@@ -86,7 +86,8 @@ class _Stack(object):
 
 
 class PumpkinException(Exception):
-    def __init__(self, code, response, server_handler, DEBUG = False):
+
+    def __init__(self, code, response, server_handler, DEBUG=False):
         self._DEBUG = DEBUG
         self._response = response
         self._response.set_status(code)
@@ -208,12 +209,15 @@ class Pumpkin(object):
         return response
 
     def url_for(self, fn, filename=None):
-        # Static file URL
+        # Static file URL like these:
+        # <link type="text/css" rel="stylesheet" href="{{ app.url_for('static', 'style.css') }}" />
+        # <link type="text/css" rel="stylesheet" href="{{ app.url_for('static', 'css/style.css') }}" />
         if fn == self.static_folder and filename:
             if filename in self.static_path_cache.keys():
                 return self.static_path_cache[filename]
             else:
                 path = self.construct_url(filename)
+                # Cache the path
                 self.static_path_cache[filename] = path
                 return path
         # Router function URL
@@ -221,7 +225,7 @@ class Pumpkin(object):
 
     def construct_url(self, filename):
         environ = self._request.headers
-        url = environ['wsgi.url_scheme']+'://'
+        url = environ['wsgi.url_scheme'] + '://'
         if environ.get('HTTP_HOST'):
             url += environ['HTTP_HOST']
         else:
@@ -229,15 +233,15 @@ class Pumpkin(object):
 
             if environ['wsgi.url_scheme'] == 'https':
                 if environ['SERVER_PORT'] != '443':
-                   url += ':' + environ['SERVER_PORT']
+                    url += ':' + environ['SERVER_PORT']
             else:
                 if environ['SERVER_PORT'] != '80':
-                   url += ':' + environ['SERVER_PORT']
+                    url += ':' + environ['SERVER_PORT']
 
         url += quote(environ.get('SCRIPT_NAME', ''))
         if environ.get('QUERY_STRING'):
             url += '?' + environ['QUERY_STRING']
-        
+
         url += '/' + '/'.join([self.static_folder, filename])
         return url
 
@@ -248,7 +252,7 @@ class Pumpkin(object):
     @property
     def response(self):
         return self._response
-        
+
     def handle_static(self, path, environ, start_response):
         self._response = Response(None)
 
@@ -257,7 +261,7 @@ class Pumpkin(object):
         if not os.path.exists(path) or not os.path.isfile(path):
             return self.not_found()
 
-        mimetype='text/plain'
+        mimetype = 'text/plain'
         guess_type = mimetypes.guess_type(path)[0]
         if guess_type:
             self._response.set_content_type(guess_type)
@@ -267,11 +271,13 @@ class Pumpkin(object):
         stats = os.stat(path)
 
         last_modified_time = time.gmtime(stats.st_mtime)
-        last_modified_str = time.strftime("%a, %d %b %Y %H:%M:%S UTC", last_modified_time)
+        last_modified_str = time.strftime(
+            "%a, %d %b %Y %H:%M:%S UTC", last_modified_time)
 
         if_modified_since_str = self._request.if_modified_since
         if if_modified_since_str:
-            if_modified_since_time = time.strptime(if_modified_since_str, "%a, %d %b %Y %H:%M:%S %Z")
+            if_modified_since_time = time.strptime(
+                if_modified_since_str, "%a, %d %b %Y %H:%M:%S %Z")
             if if_modified_since_time >= last_modified_time:
                 return self.not_modified()
 
