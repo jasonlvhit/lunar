@@ -79,9 +79,6 @@ class Router(object):
         return f, args
 
     def _match_path(self, p):
-        if self.url_pattern.match(p).group('static'):
-            raise pumpkin.StaticException(p)
-
         for k in self.rules:
             if isinstance(k, str):
                 if k == p:
