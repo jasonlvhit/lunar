@@ -95,10 +95,12 @@ class PumpkinException(Exception):
         self._server_handler = server_handler
 
     def __call__(self):
-        self._server_handler(self._response.status, self._response.headerlist)
+        body = self._response.status
         if self._DEBUG:
-            return '<br>'.join([self._response.status, traceback.format_exc().replace('\n', '<br>')])
-        return [self._response.status]
+            body = '<br>'.join([self._response.status, traceback.format_exc().replace('\n', '<br>')])
+        self._response.set_body(body)
+        self._server_handler(self._response.status, self._response.headerlist)
+        return [self._response.body]
 
 
 class Pumpkin(object):
