@@ -2,9 +2,17 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title>My Blog</title>
+    <title>Pumpkin Blog</title>
 </head>
 <body>
-    My Blog.
+    <h2>Pumpkin Blog.</h2>
+    <ul>
+        {% for post in posts %}
+        <li><h4>{{ post.title }}</h4>
+            <pre>{{ post.pub_date }}</pre>
+            <p>{{ post.content }}</p>
+        </li>
+        {% endfor %}
+    </ul>
 </body>
 </html>

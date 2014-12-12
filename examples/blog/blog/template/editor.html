@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="http://lab.lepture.com/editor/editor.css" />
+	<script type="text/javascript" src="http://lab.lepture.com/editor/editor.js"></script>
+	<script type="text/javascript" src="http://lab.lepture.com/editor/marked.js"></script>
+    <title>Editor</title>
+    <style type="text/css">
+      body {
+        padding: 0;
+        margin: 0;
+        background-color: #f9f9f7;
+      }
+      .editor-wrapper {
+        max-width: 880px;
+        padding: 10px;
+        margin: 60px auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="editor-wrapper">
+	<form action =" {{ app.url_for(new_post) }}" method = post>
+      <input name = "title" class="title" type="text" placeholder="title" />
+	  <input name = "tag" class = "title" type = "text" placeholder = "tag"/>
+      <textarea name="editor" placeholder="Content here ...."></textarea>
+	  <input type = "submit" value = "Create A Post">
+	</form>
+    </div>
+    <!-- only required for loading sample markdown into the textarea -->
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/zepto/1.0/zepto.min.js"></script>
+    <script type="text/javascript">
+    var editor = new Editor();
+	editor.render();
+	</script>
+  </body>
+</html>

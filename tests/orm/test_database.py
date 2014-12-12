@@ -92,8 +92,8 @@ class ModelTests(BaseTests):
     def test_refed_fields(self):
         post_refed_fields = ['tags']
         tag_refed_fields = ['posts']
-        self.assertEqual(Post.__refed_fields__.keys(), post_refed_fields)
-        self.assertEqual(Tag.__refed_fields__.keys(), tag_refed_fields)
+        self.assertEqual([i for i in Post.__refed_fields__.keys()], post_refed_fields)
+        self.assertEqual([i for i in Tag.__refed_fields__.keys()], tag_refed_fields)
 
     def test_relationship(self):
         pass

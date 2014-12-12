@@ -26,6 +26,10 @@ def test_escape():
     return app.render_template('test_escape.html', content="<p>hello escape</p>")
 
 
+@app.route('/url_for_with_args')
+def test_url_for_with_args():
+    return app.url_for(test_sync_args, id=1)
+
 @app.route('/url_for')
 def test_url_for():
     return app.url_for(index)
@@ -57,5 +61,10 @@ def test_post():
 def test_redirect():
     return app.redirect('/')
 
+@app.route('/redirect_with_args')
+def test_redirect_with_url():
+    return app.redirect(app.url_for(test_sync_args, id=1))
+
+
 if __name__ == '__main__':
-    app.run(DEBUG = True)
+    app.run(DEBUG=True)

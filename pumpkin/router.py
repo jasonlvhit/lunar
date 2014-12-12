@@ -27,7 +27,7 @@ class Router(object):
         '/hello/pumpkin/<int:id>'
         '''
         # caution!!!!
-        # weird in python 3: get nothing to repeat error in python 3
+        # weird in python 3.3: get nothing to repeat error in python 3
         # http://stackoverflow.com/questions/3675144/regex-error-nothing-to-repeat
         self.url_pattern = re.compile(
             ''' (?P<static>([:\\\\/\w\d]*)\\.(\\w+)) #static
@@ -88,12 +88,16 @@ class Router(object):
                 if _g:
                     return self.rules[k], {k[1]: _g.group('args')}
 
-    def url_for(self, fn):
+    def url_for(self, fn, **kwargs):
         if not callable(object):
             raise RouterException(
                 "router url_for method only accept callable object.")
         for k, v in self.rules.items():
             if v == fn:
+                if isinstance(k, tuple):
+                    if not kwargs:
+                        raise RouterException("need a argument.")
+                    return k[0].pattern.replace('(?P<args>\d+$)', str(kwargs[k[1]]))
                 return k
         raise RouterException(
             "callable object doesn't matched any routing rule.")
