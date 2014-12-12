@@ -57,7 +57,7 @@ class Router(object):
         p = g.group('prefix')
         if g.group('suffix'):
             assert g.group('type') == 'int', g.group('type')
-            p += '(?P<args>\d+)'
+            p += '(?P<args>\d+$)'
             self.rules[(re.compile(p), g.group('arg'))] = fn
         else:
             self.rules[p] = fn
