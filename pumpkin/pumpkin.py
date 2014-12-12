@@ -34,8 +34,10 @@ from functools import wraps
 
 if sys.version < '3':
     from Queue import Queue
+    from urllib import quote
 else:
     from queue import Queue
+    from urllib.parse import quote
 
 try:
     import pkg_resources
@@ -47,7 +49,7 @@ from .server import ServerAdapter
 from .server import WSGIRefServer
 from .template import Loader, unescape
 from .wrappers import Request, Response
-from router import Router, RouterException
+from .router import Router, RouterException
 
 """
 The Main object of pumpkin.
@@ -85,7 +87,8 @@ class _Stack(object):
 
 
 class PumpkinException(Exception):
-    def __init__(self, code, response, server_handler, DEBUG = False):
+
+    def __init__(self, code, response, server_handler, DEBUG=False):
         self._DEBUG = DEBUG
         self._response = response
         self._response.set_status(code)
@@ -96,33 +99,6 @@ class PumpkinException(Exception):
         if self._DEBUG:
             return '<br>'.join([self._response.status, traceback.format_exc().replace('\n', '<br>')])
         return [self._response.status]
-
-
-class StaticException(Exception):
-    def __init__(self, path):
-        self.response = Response(None)
-
-        if not os.path.exists(path) or not os.path.isfile(path):
-            self.response.set_body(body='404 Not found')
-            self.response.set_status(404)
-            return
-
-        mimetype='text/plain'
-        guess_type = mimetypes.guess_type(path)[0]
-        if guess_type:
-            self.response.set_content_type(guess_type)
-        else:
-            self.response.set_content_type(mimetype)
-
-        stats = os.stat(path)
-        if 'Content-Length' not in self.response.headers.keys():
-            self.response.headers['Content-Length'] = str(stats.st_size)
-        if 'Last-Modified' not in self.response.headers.keys():
-            ts = time.gmtime(stats.st_mtime)
-            ts = time.strftime("%a, %d %b %Y %H:%M:%S +0000", ts)
-            self.response.headers['Last-Modified'] = ts
-
-        self.response.set_body(body=(open(path, 'r').read()))
 
 
 class Pumpkin(object):
@@ -148,6 +124,7 @@ class Pumpkin(object):
 
         # static file
         self.static_folder = static
+        self.static_path_cache = {}
 
         # session
         self._session = self._request.cookies
@@ -218,6 +195,12 @@ class Pumpkin(object):
         self._server_handler(self._response.status, self._response.headerlist)
         return [response.body]
 
+    def not_modified(self):
+        response = Response('', code=304)
+        self._response = response
+        self._server_handler(self._response.status, self._response.headerlist)
+        return [response.body]
+
     def redirect(self, location, code=302):
         response = Response(body='<p>Redirecting...</p>', code=code)
         response.headers['Location'] = location
@@ -226,16 +209,42 @@ class Pumpkin(object):
         # return [self._response.body]
         return response
 
-    def url_for(self, fn):
+    def url_for(self, fn, filename=None):
+        # Static file URL like these:
+        # <link type="text/css" rel="stylesheet" href="{{ app.url_for('static', 'style.css') }}" />
+        # <link type="text/css" rel="stylesheet" href="{{ app.url_for('static', 'css/style.css') }}" />
+        if fn == self.static_folder and filename:
+            if filename in self.static_path_cache.keys():
+                return self.static_path_cache[filename]
+            else:
+                path = self.construct_url(filename)
+                # Cache the path
+                self.static_path_cache[filename] = path
+                return path
+        # Router function URL
         return self._router.url_for(fn)
 
-    def load_static(self, filename, path=None):
-        """ load static files:
-            <link type="text/css" rel="stylesheet" href="{{ app.load_static('style.css') }}" />
-        """
-        if path:
-            return os.sep.join([self.root_path, path, filename]).replace("\\\\", "\\")[1:]
-        return os.sep.join([self.root_path, self.static_folder, filename]).replace("\\\\", "\\")[1:]
+    def construct_url(self, filename):
+        environ = self._request.headers
+        url = environ['wsgi.url_scheme'] + '://'
+        if environ.get('HTTP_HOST'):
+            url += environ['HTTP_HOST']
+        else:
+            url += environ['SERVER_NAME']
+
+            if environ['wsgi.url_scheme'] == 'https':
+                if environ['SERVER_PORT'] != '443':
+                    url += ':' + environ['SERVER_PORT']
+            else:
+                if environ['SERVER_PORT'] != '80':
+                    url += ':' + environ['SERVER_PORT']
+
+        url += quote(environ.get('SCRIPT_NAME', ''))
+        if environ.get('QUERY_STRING'):
+            url += '?' + environ['QUERY_STRING']
+
+        url += '/' + '/'.join([self.static_folder, filename])
+        return url
 
     @property
     def request(self):
@@ -245,18 +254,53 @@ class Pumpkin(object):
     def response(self):
         return self._response
 
+    def handle_static(self, path, environ, start_response):
+        self._response = Response(None)
+
+        path = self.root_path + path
+
+        if not os.path.exists(path) or not os.path.isfile(path):
+            return self.not_found()
+
+        mimetype = 'text/plain'
+        guess_type = mimetypes.guess_type(path)[0]
+        if guess_type:
+            self._response.set_content_type(guess_type)
+        else:
+            self._response.set_content_type(mimetype)
+
+        stats = os.stat(path)
+
+        last_modified_time = time.gmtime(stats.st_mtime)
+        last_modified_str = time.strftime(
+            "%a, %d %b %Y %H:%M:%S UTC", last_modified_time)
+
+        if_modified_since_str = self._request.if_modified_since
+        if if_modified_since_str:
+            if_modified_since_time = time.strptime(
+                if_modified_since_str, "%a, %d %b %Y %H:%M:%S %Z")
+            if if_modified_since_time >= last_modified_time:
+                return self.not_modified()
+
+        if 'Last-Modified' not in self._response.headers.keys():
+            self.response.headers['Last-Modified'] = last_modified_str
+
+        self._response.set_body(body=(open(path, 'r').read()))
+        start_response(self._response.status, self._response.headerlist)
+        return [self._response.body]
+
     def __call__(self, environ, start_response):
         self._response = Response(None)
         self._server_handler = start_response
         # start_response.im_self._flush()
         self._request.bind(environ)
+        # Handle static files
+        if self._request.path is not None and self._request.path.lstrip('/').startswith(self.static_folder):
+            return self.handle_static(self._request.path, environ, start_response)
+
         try:
             handler, args = self._router.get(
                 self._request.path, self._request.method)
-        except StaticException as e:
-            self._response = e.response
-            start_response(self._response.status, self._response.headerlist)
-            return [self._response.body]
         except TypeError:
             return PumpkinException(404, self._response, self._server_handler, self.DEBUG)()
         try:
