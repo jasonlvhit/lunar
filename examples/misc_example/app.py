@@ -11,7 +11,7 @@ def index():
 #/args?key=pumpkin&count=4
 @app.route('/test_args', methods=["GET"])
 def test_args():
-    return (app.request.args["key"], app.request.args["count"])
+    return app.request.args["key"] + ':' + app.request.args["count"]
 
 # template
 
@@ -50,7 +50,7 @@ def test_sync_args(id):
 def test_post():
     if app.request.method == 'GET':
         return app.render_template('test_post.html')
-    return (app.request.forms["title"], app.request.forms["tag"])
+    return app.request.forms["title"] + ':' + app.request.forms["tag"]
 
 
 @app.route('/test_redirect')

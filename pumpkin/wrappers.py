@@ -1,4 +1,5 @@
 import sys
+import cgi
 import threading
 
 from collections import MutableMapping

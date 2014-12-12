@@ -294,6 +294,7 @@ class Pumpkin(object):
 
     def __call__(self, environ, start_response):
         self._response = Response(None)
+        self._request = Request(None)
         self._server_handler = start_response
         # start_response.im_self._flush()
         self._request.bind(environ)
