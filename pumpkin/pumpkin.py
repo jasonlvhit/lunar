@@ -256,10 +256,10 @@ class Pumpkin(object):
     def response(self):
         return self._response
 
-    def handle_static(self, path, environ, start_response):
+    def handle_static(self, path, start_response):
         self._response = Response(None)
 
-        path = self.root_path + path
+        path += self.root_path
 
         if not os.path.exists(path) or not os.path.isfile(path):
             return self.not_found()
@@ -298,7 +298,7 @@ class Pumpkin(object):
         self._request.bind(environ)
         # Handle static files
         if self._request.path is not None and self._request.path.lstrip('/').startswith(self.static_folder):
-            return self.handle_static(self._request.path, environ, start_response)
+            return self.handle_static(self._request.path, start_response)
 
         try:
             handler, args = self._router.get(
