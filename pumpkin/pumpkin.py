@@ -211,16 +211,20 @@ class Pumpkin(object):
         else:
             url += environ['SERVER_NAME']
 
-            if environ['SERVER_PORT'] != '80':
-               url += ':' + environ['SERVER_PORT']
+            if environ['wsgi.url_scheme'] == 'https':
+                if environ['SERVER_PORT'] != '443':
+                   url += ':' + environ['SERVER_PORT']
+            else:
+                if environ['SERVER_PORT'] != '80':
+                   url += ':' + environ['SERVER_PORT']
 
         url += quote(environ.get('SCRIPT_NAME', ''))
         if environ.get('QUERY_STRING'):
             url += '?' + environ['QUERY_STRING']
         if path:
-            url += '/' + os.path.join(self.static_folder, path, filename)
+            url += '/' + '/'.join([self.static_folder, path, filename])
         else:
-            url += '/' + os.path.join(self.static_folder, filename)
+            url += '/' + '/'.join([self.static_folder, filename])
         return url
 
     def load_static(self, filename, path=None):
