@@ -313,7 +313,7 @@ class Pumpkin(object):
             else:
                 r = handler()
             if isinstance(r, Response):
-                self._server_handler(self._response.status, self._response.headerlist)
+                self._server_handler(r.status, r.headerlist)
                 return [r.body]
             self._response.set_body(body=r)
             self._response.set_status(200)
