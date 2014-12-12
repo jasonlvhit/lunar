@@ -193,6 +193,12 @@ class Pumpkin(object):
         self._server_handler(self._response.status, self._response.headerlist)
         return [response.body]
 
+    def not_modified(self):
+        response = Response('', code=304)
+        self._response = response
+        self._server_handler(self._response.status, self._response.headerlist)
+        return [response.body]
+
     def redirect(self, location, code=302):
         response = Response(body='<p>Redirecting...</p>', code=code)
         response.headers['Location'] = location
@@ -260,10 +266,17 @@ class Pumpkin(object):
 
         stats = os.stat(path)
 
+        last_modified_time = time.gmtime(stats.st_mtime)
+        last_modified_str = time.strftime("%a, %d %b %Y %H:%M:%S +0000", last_modified_time)
+
+        if_modified_since_str = self._request.if_modified_since
+        if if_modified_since_str:
+            if_modified_since_time = time.strptime(if_modified_since_str, "%a, %d %b %Y %H:%M:%S +0000")
+            if if_modified_since_time < last_modified_time:
+                return self.not_modified()
+
         if 'Last-Modified' not in self._response.headers.keys():
-            ts = time.gmtime(stats.st_mtime)
-            ts = time.strftime("%a, %d %b %Y %H:%M:%S +0000", ts)
-            self.response.headers['Last-Modified'] = ts
+            self.response.headers['Last-Modified'] = last_modified_str
 
         self._response.set_body(body=(open(path, 'r').read()))
         start_response(self._response.status, self._response.headerlist)
@@ -274,7 +287,7 @@ class Pumpkin(object):
         self._server_handler = start_response
         # start_response.im_self._flush()
         self._request.bind(environ)
-        # Static files
+        # Handle static files
         if self._request.path is not None and self._request.path.lstrip('/').startswith(self.static_folder):
             return self.handle_static(self._request.path, environ, start_response)
 
