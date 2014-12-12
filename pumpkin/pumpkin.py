@@ -126,7 +126,7 @@ class Pumpkin(object):
 
         # static file
         self.static_folder = static
-        self.static_path_cache = {}
+        self.static_url_cache = {}
 
         # session
         self._session = self._request.cookies
@@ -216,13 +216,13 @@ class Pumpkin(object):
         # <link type="text/css" rel="stylesheet" href="{{ app.url_for('static', 'style.css') }}" />
         # <link type="text/css" rel="stylesheet" href="{{ app.url_for('static', 'css/style.css') }}" />
         if fn == self.static_folder and filename:
-            if filename in self.static_path_cache.keys():
-                return self.static_path_cache[filename]
+            if filename in self.static_url_cache.keys():
+                return self.static_url_cache[filename]
             else:
-                path = self.construct_url(filename)
-                # Cache the path
-                self.static_path_cache[filename] = path
-                return path
+                url = self.construct_url(filename)
+                # Cache the url
+                self.static_url_cache[filename] = url
+                return url
         # Router function URL
         return self._router.url_for(fn)
 
@@ -256,12 +256,13 @@ class Pumpkin(object):
     def response(self):
         return self._response
 
-    def handle_static(self, path, start_response):
+    def handle_static(self, path):
         self._response = Response(None)
 
         # This is the path of a static file on the filesystem
-        path += self.root_path
+        path = self.root_path + path
 
+        print(path)
         if not os.path.exists(path) or not os.path.isfile(path):
             return self.not_found()
 
@@ -290,7 +291,7 @@ class Pumpkin(object):
             self.response.headers['Last-Modified'] = last_modified_str
 
         self._response.set_body(body=(open(path, 'r').read()))
-        start_response(self._response.status, self._response.headerlist)
+        self._server_handler(self._response.status, self._response.headerlist)
         return [self._response.body]
 
     def __call__(self, environ, start_response):
@@ -300,13 +301,13 @@ class Pumpkin(object):
         self._request.bind(environ)
         # Handle static files
         if self._request.path is not None and self._request.path.lstrip('/').startswith(self.static_folder):
-            return self.handle_static(self._request.path, start_response)
+            return self.handle_static(self._request.path)
 
         try:
             handler, args = self._router.get(
                 self._request.path, self._request.method)
         except TypeError:
-            return PumpkinException(404, self._response, self._server_handler, self.DEBUG)()
+            return self.not_found()
         try:
             if args:
                 r = handler(**args)
