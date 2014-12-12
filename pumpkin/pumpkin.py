@@ -267,12 +267,12 @@ class Pumpkin(object):
         stats = os.stat(path)
 
         last_modified_time = time.gmtime(stats.st_mtime)
-        last_modified_str = time.strftime("%a, %d %b %Y %H:%M:%S +0000", last_modified_time)
+        last_modified_str = time.strftime("%a, %d %b %Y %H:%M:%S UTC", last_modified_time)
 
         if_modified_since_str = self._request.if_modified_since
         if if_modified_since_str:
-            if_modified_since_time = time.strptime(if_modified_since_str, "%a, %d %b %Y %H:%M:%S +0000")
-            if if_modified_since_time < last_modified_time:
+            if_modified_since_time = time.strptime(if_modified_since_str, "%a, %d %b %Y %H:%M:%S %Z")
+            if if_modified_since_time >= last_modified_time:
                 return self.not_modified()
 
         if 'Last-Modified' not in self._response.headers.keys():
