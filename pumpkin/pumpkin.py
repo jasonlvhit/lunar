@@ -122,6 +122,7 @@ class Pumpkin(object):
 
         # static file
         self.static_folder = static
+        self.static_path_cache = {}
 
         # session
         self._session = self._request.cookies
@@ -200,10 +201,19 @@ class Pumpkin(object):
         # return [self._response.body]
         return response
 
-    def url_for(self, fn):
+    def url_for(self, fn, filename):
+        # Static file URL
+        if fn == self.static_folder:
+            if filename in self.static_path_cache.keys():
+                return self.static_path_cache[filename]
+            else:
+                path = self.construct_url(filename)
+                self.static_path_cache[filename] = path
+                return path
+        # Router function URL
         return self._router.url_for(fn)
 
-    def construct_url(self, filename, path=None):
+    def construct_url(self, filename):
         environ = self._request.headers
         url = environ['wsgi.url_scheme']+'://'
         if environ.get('HTTP_HOST'):
@@ -221,17 +231,9 @@ class Pumpkin(object):
         url += quote(environ.get('SCRIPT_NAME', ''))
         if environ.get('QUERY_STRING'):
             url += '?' + environ['QUERY_STRING']
-        if path:
-            url += '/' + '/'.join([self.static_folder, path, filename])
-        else:
-            url += '/' + '/'.join([self.static_folder, filename])
+        
+        url += '/' + '/'.join([self.static_folder, filename])
         return url
-
-    def load_static(self, filename, path=None):
-        """ load static files:
-            <link type="text/css" rel="stylesheet" href="{{ app.load_static('style.css') }}" />
-        """
-        return self.construct_url(filename, path)
 
     @property
     def request(self):
