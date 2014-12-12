@@ -207,9 +207,9 @@ class Pumpkin(object):
         # return [self._response.body]
         return response
 
-    def url_for(self, fn, filename):
+    def url_for(self, fn, filename=None):
         # Static file URL
-        if fn == self.static_folder:
+        if fn == self.static_folder and filename:
             if filename in self.static_path_cache.keys():
                 return self.static_path_cache[filename]
             else:
