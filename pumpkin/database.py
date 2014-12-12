@@ -5,7 +5,7 @@
 
 import sqlite3
 
-from pumpkin import app_stack
+from .pumpkin import app_stack
 
 
 PUMPKIN_CONFIG = app_stack.top().config

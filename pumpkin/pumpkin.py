@@ -262,7 +262,6 @@ class Pumpkin(object):
         # This is the path of a static file on the filesystem
         path = self.root_path + path
 
-        print(path)
         if not os.path.exists(path) or not os.path.isfile(path):
             return self.not_found()
 

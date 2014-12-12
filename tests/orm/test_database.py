@@ -2,7 +2,7 @@ from datetime import datetime
 import unittest
 
 from pumpkin import database
-from models import Post_Tag_Re, Post, Author, Tag
+from .models import Post_Tag_Re, Post, Author, Tag
 
 
 def get_cursor():
