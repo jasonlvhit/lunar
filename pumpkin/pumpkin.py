@@ -192,23 +192,22 @@ class Pumpkin(object):
         return self.loader.load(file).render(**context)
 
     def not_found(self):
-        response = Response(body='404 not found..pumpkin', code=404)
+        response = Response(body='<h1>404 Not Found</h1>', code=404)
         self._response = response
         self._server_handler(self._response.status, self._response.headerlist)
         return [response.body]
 
     def not_modified(self):
         response = Response('', code=304)
+        # We don't need Content-Type here.
+        del(response.headers['Content-Type'])
         self._response = response
         self._server_handler(self._response.status, self._response.headerlist)
-        return [response.body]
+        return []
 
     def redirect(self, location, code=302):
         response = Response(body='<p>Redirecting...</p>', code=code)
         response.headers['Location'] = location
-        self._response = response
-        self._server_handler(self._response.status, self._response.headerlist)
-        # return [self._response.body]
         return response
 
     def url_for(self, fn, filename=None):
@@ -313,7 +312,8 @@ class Pumpkin(object):
             else:
                 r = handler()
             if isinstance(r, Response):
-                return r.body
+                self._server_handler(self._response.status, self._response.headerlist)
+                return [r.body]
             self._response.set_body(body=r)
             self._response.set_status(200)
         except Exception as e:
