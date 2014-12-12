@@ -31,12 +31,13 @@ import traceback
 import mimetypes
 
 from functools import wraps
-from urllib import quote
 
 if sys.version < '3':
     from Queue import Queue
+    from urllib import quote
 else:
     from queue import Queue
+    from urllib.parse import quote
 
 try:
     import pkg_resources
@@ -48,7 +49,7 @@ from .server import ServerAdapter
 from .server import WSGIRefServer
 from .template import Loader, unescape
 from .wrappers import Request, Response
-from router import Router, RouterException
+from .router import Router, RouterException
 
 """
 The Main object of pumpkin.
