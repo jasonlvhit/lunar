@@ -259,6 +259,7 @@ class Pumpkin(object):
     def handle_static(self, path, environ, start_response):
         self._response = Response(None)
 
+        # This is the path of a static file on the filesystem
         path = self.root_path + path
 
         if not os.path.exists(path) or not os.path.isfile(path):
@@ -277,6 +278,7 @@ class Pumpkin(object):
         last_modified_str = time.strftime(
             "%a, %d %b %Y %H:%M:%S UTC", last_modified_time)
 
+        # Handle If-Modified-Since
         if_modified_since_str = self._request.if_modified_since
         if if_modified_since_str:
             if_modified_since_time = time.strptime(

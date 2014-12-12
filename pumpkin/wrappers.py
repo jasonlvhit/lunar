@@ -181,6 +181,7 @@ class Response(BaseObject):
 
     def set_body(self, body):
         self._body = body
+        # Python 3 Bytes hack
         if sys.version > '3':
             self._body = bytes(body, 'iso-8859-1')
 
