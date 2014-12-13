@@ -294,6 +294,7 @@ class Pumpkin(object):
         try:
             handler, args = self._router.get(
                 self._request.path, self._request.method)
+        # 404
         except TypeError:
             return self.not_found()
 
@@ -310,7 +311,7 @@ class Pumpkin(object):
         # start_response.im_self._flush()
         self._request.bind(environ)
         r = None
-        # Handle static files
+        # Static files
         if self._request.path is not None and self._request.path.lstrip('/').startswith(self.static_folder):
             r = self.handle_static(self._request.path)
         else:

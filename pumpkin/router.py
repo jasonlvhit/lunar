@@ -73,7 +73,7 @@ class Router(object):
         if not f:
             return None
         method = method.upper()
-        if f not in self.methods.get(method):
+        if self.methods.get(method) is None:
             raise RouterException(
                 "Request method %s not allowed in this app." % method)
         return f, args

@@ -138,7 +138,6 @@ class QueryTests(BaseTests):
 
         p3 = Post.delete('id < 3').commit()
         self.assertEqual(p3.rowcount, 1)
-
     def test_update(self):
         p1 = Post.update(id=5).set(title="new title 5").commit()
         self.assertEqual(p1.rowcount, 1)
