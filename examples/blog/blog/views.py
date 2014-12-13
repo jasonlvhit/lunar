@@ -33,7 +33,7 @@ def create_post():
         post.tags.append(i)
     db.add(post)
     db.commit()
-    return app.redirect(app.url_for(show_post, id=Post.select('id').max()))
+    return app.redirect(app.url_for(show_post, id=post.id))
 
 @app.route('/post/<int:id>')
 def show_post(id):

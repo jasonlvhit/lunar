@@ -289,7 +289,11 @@ class MetaModel(type):
 
 class Model(MetaModel('NewBase', (object, ), {})):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
+        max_id = self.select('id').max()
+        if not max_id:
+            max_id = 0
+        self.id = max_id + 1        
         for k, v in kwargs.items():
             setattr(self, k, v)
 
