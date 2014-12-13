@@ -150,10 +150,9 @@ class Response(BaseObject):
         self.content_type = content_type
 
         # body
-        self._body = str(body)
-        if sys.version > '3':
-            self._body = bytes(self._body, 'iso-8859-1')
-
+        self._body = None
+        self.set_body(body)
+        
     @property
     def cookies(self):
         if not self._cookies:

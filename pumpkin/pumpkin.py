@@ -97,7 +97,8 @@ class PumpkinException(Exception):
     def __call__(self):
         body = self._response.status
         if self._DEBUG:
-            body = '<br>'.join([self._response.status, traceback.format_exc().replace('\n', '<br>')])
+            body = '<br>'.join(
+                [self._response.status, traceback.format_exc().replace('\n', '<br>')])
         self._response.set_body(body)
         self._server_handler(self._response.status, self._response.headerlist)
         return [self._response.body]
@@ -193,17 +194,13 @@ class Pumpkin(object):
 
     def not_found(self):
         response = Response(body='<h1>404 Not Found</h1>', code=404)
-        self._response = response
-        self._server_handler(self._response.status, self._response.headerlist)
-        return [response.body]
+        return response
 
     def not_modified(self):
         response = Response('', code=304)
         # We don't need Content-Type here.
         del(response.headers['Content-Type'])
-        self._response = response
-        self._server_handler(self._response.status, self._response.headerlist)
-        return []
+        return response
 
     def redirect(self, location, code=302):
         response = Response(body='<p>Redirecting...</p>', code=code)
@@ -256,7 +253,7 @@ class Pumpkin(object):
         return self._response
 
     def handle_static(self, path):
-        self._response = Response(None)
+        response = Response(None)
 
         # This is the path of a static file on the filesystem
         path = self.root_path + path
@@ -288,9 +285,24 @@ class Pumpkin(object):
         if 'Last-Modified' not in self._response.headers.keys():
             self.response.headers['Last-Modified'] = last_modified_str
 
-        self._response.set_body(body=(open(path, 'r').read()))
-        self._server_handler(self._response.status, self._response.headerlist)
-        return [self._response.body]
+        response.set_body(body=(open(path, 'r').read()))
+        return response
+
+    def handle_router(self):
+        try:
+            handler, args = self._router.get(
+                self._request.path, self._request.method)
+        except TypeError:
+            return self.not_found()
+
+        try:
+            if args:
+                r = handler(**args)
+            else:
+                r = handler()
+        except Exception as e:
+            return PumpkinException(500, self._response, self._server_handler, self.DEBUG)()
+        return r
 
     def __call__(self, environ, start_response):
         self._response = Response(None)
@@ -298,28 +310,21 @@ class Pumpkin(object):
         self._server_handler = start_response
         # start_response.im_self._flush()
         self._request.bind(environ)
+        r = None
         # Handle static files
         if self._request.path is not None and self._request.path.lstrip('/').startswith(self.static_folder):
-            return self.handle_static(self._request.path)
+            r = self.handle_static(self._request.path)
+        else:
+            r = self.handle_router()
 
-        try:
-            handler, args = self._router.get(
-                self._request.path, self._request.method)
-        except TypeError:
-            return self.not_found()
-        try:
-            if args:
-                r = handler(**args)
-            else:
-                r = handler()
-            if isinstance(r, Response):
-                self._server_handler(r.status, r.headerlist)
-                return [r.body]
-            self._response.set_body(body=r)
-            self._response.set_status(200)
-        except Exception as e:
-            return PumpkinException(500, self._response, self._server_handler, self.DEBUG)()
+        #302, 304 and 404
+        if isinstance(r, Response):
+            self._server_handler(r.status, r.headerlist)
+            return [r.body]
 
+        # Normal html
+        self._response.set_body(body=r)
+        self._response.set_status(200)
         start_response(self._response.status, self._response.headerlist)
         return [self._response.body]
 
