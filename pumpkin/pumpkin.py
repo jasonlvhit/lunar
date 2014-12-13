@@ -266,9 +266,9 @@ class Pumpkin(object):
         mimetype = 'text/plain'
         guess_type = mimetypes.guess_type(path)[0]
         if guess_type:
-            self._response.set_content_type(guess_type)
+            response.set_content_type(guess_type)
         else:
-            self._response.set_content_type(mimetype)
+            response.set_content_type(mimetype)
 
         stats = os.stat(path)
 
@@ -284,8 +284,8 @@ class Pumpkin(object):
             if if_modified_since_time >= last_modified_time:
                 return self.not_modified()
 
-        if 'Last-Modified' not in self._response.headers.keys():
-            self.response.headers['Last-Modified'] = last_modified_str
+        if 'Last-Modified' not in response.headers.keys():
+            response.headers['Last-Modified'] = last_modified_str
 
         response.set_body(body=(open(path, 'r').read()))
         return response
@@ -321,8 +321,9 @@ class Pumpkin(object):
             except Exception as e:
                 return PumpkinException(500, self._response, self._server_handler, self.DEBUG)()
 
-        # 302, 304 and 404
+        # Static files, 302, 304 and 404
         if isinstance(r, Response):
+            self._response = r
             self._server_handler(r.status, r.headerlist)
             return [r.body]
 
