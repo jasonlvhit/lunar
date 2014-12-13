@@ -17,7 +17,7 @@ def tag_filter(tags):
         if i not in s:
             db.add(Tag(name=i))
             db.commit()
-    return [i for i in existed_tags if i.name in set(l)]
+    return [i for i in Tag.select().all() if i.name in set(l)]
 
 
 @app.route('/new_post', methods=['POST', 'GET'])
@@ -29,10 +29,10 @@ def create_post():
     tags = tag_filter(app.request.forms['tag'])
     content = app.request.forms['editor']
     post = Post(title=title, content=content, pub_date=datetime.now())
-    for i in tags:
-        post.tags.append(i)
     db.add(post)
     db.commit()
+    for i in tags:
+        post.tags.append(i)
     return app.redirect(app.url_for(show_post, id=post.id))
 
 @app.route('/post/<int:id>')

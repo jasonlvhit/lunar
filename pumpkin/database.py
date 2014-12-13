@@ -293,7 +293,10 @@ class Model(MetaModel('NewBase', (object, ), {})):
         max_id = self.select('id').max()
         if not max_id:
             max_id = 0
-        self.id = max_id + 1        
+        self.id = max_id + 1
+        for _, v in self.__refed_fields__.items():
+            if isinstance(v, ForeignKeyReverseField) or isinstance(v, ManyToManyField):
+                v.id = self.id
         for k, v in kwargs.items():
             setattr(self, k, v)
 

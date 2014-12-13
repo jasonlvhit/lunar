@@ -11,6 +11,10 @@
         <li><h4>{{ post.title }}</h4>
             <pre>{{ post.pub_date }}</pre>
             <p>{{ post.content }}</p>
+            <p>Tags:</p>
+            {% for tag in post.tags.all() %}
+                {{ tag.name }}&nbsp;
+            {% endfor %}
         </li>
         {% endfor %}
     </ul>
