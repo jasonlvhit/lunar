@@ -297,13 +297,10 @@ class Pumpkin(object):
         except TypeError:
             return self.not_found()
 
-        try:
-            if args:
-                r = handler(**args)
-            else:
-                r = handler()
-        except Exception as e:
-            return PumpkinException(500, self._response, self._server_handler, self.DEBUG)()
+        if args:
+            r = handler(**args)
+        else:
+            r = handler()
         return r
 
     def __call__(self, environ, start_response):
@@ -317,9 +314,13 @@ class Pumpkin(object):
         if self._request.path is not None and self._request.path.lstrip('/').startswith(self.static_folder):
             r = self.handle_static(self._request.path)
         else:
-            r = self.handle_router()
+            try:
+                r = self.handle_router()
+            # 500 
+            except Exception as e:
+                return PumpkinException(500, self._response, self._server_handler, self.DEBUG)()
 
-        #302, 304 and 404
+        # 302, 304 and 404
         if isinstance(r, Response):
             self._server_handler(r.status, r.headerlist)
             return [r.body]
