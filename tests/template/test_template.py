@@ -54,6 +54,12 @@ class BaseTests(unittest.TestCase):
             4
             ''')
 
+    def test_elif(self):
+        t1 = Template('{% if 2 > 3 %}2{% elif 3 > 2 %}3{% else %}1').render()
+        self.assertEqual(t1, '3')
+        t2 = Template('{% if 2 > 3 %}2{% elif 3 < 2 %}3{% else %}0').render()
+        self.assertEqual(t2, '0')
+
     def test_user_define_object(self):
         class A(object):
 

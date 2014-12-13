@@ -19,21 +19,11 @@ class Post(database.Model):
     content = database.TextField()
     pub_date = database.DateField()
 
-    author_id = database.ForeignKeyField('author')
     tags = database.ManyToManyField(rel='post_tag_re', to_table='tag')
 
     def __repr__(self):
         return '<Post %s>' % self.title
 
-
-class Author(database.Model):
-    id = database.PrimaryKeyField()
-    name = database.CharField(100)
-
-    posts = database.ForeignKeyReverseField('self_define_post')
-
-    def __repr__(self):
-        return '<Author %s>' % self.name
 
 class Tag(database.Model):
     id = database.PrimaryKeyField()

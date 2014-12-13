@@ -207,7 +207,7 @@ class Pumpkin(object):
         response.headers['Location'] = location
         return response
 
-    def url_for(self, fn, filename=None):
+    def url_for(self, fn, filename=None, **kwargs):
         # Static file URL like these:
         # <link type="text/css" rel="stylesheet" href="{{ app.url_for('static', 'style.css') }}" />
         # <link type="text/css" rel="stylesheet" href="{{ app.url_for('static', 'css/style.css') }}" />
@@ -220,6 +220,8 @@ class Pumpkin(object):
                 self.static_url_cache[filename] = url
                 return url
         # Router function URL
+        if kwargs:
+            return self._router.url_for(fn, **kwargs)
         return self._router.url_for(fn)
 
     def construct_url(self, filename):
