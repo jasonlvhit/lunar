@@ -3,25 +3,14 @@
   <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="http://lab.lepture.com/editor/editor.css" />
+    <link rel="stylesheet" href="{{ app.url_for('static', 'style.css') }}" />
 	<script type="text/javascript" src="http://lab.lepture.com/editor/editor.js"></script>
 	<script type="text/javascript" src="http://lab.lepture.com/editor/marked.js"></script>
     <title>Editor</title>
-    <style type="text/css">
-      body {
-        padding: 0;
-        margin: 0;
-        background-color: #f9f9f7;
-      }
-      .editor-wrapper {
-        max-width: 880px;
-        padding: 10px;
-        margin: 60px auto;
-      }
-    </style>
   </head>
   <body>
     <div class="editor-wrapper">
-	<form action =" {{ app.url_for(new_post) }}" method = post>
+	<form action =" {{ app.url_for(views.create_post) }}" method = post>
       <input name = "title" class="title" type="text" placeholder="title" />
 	  <input name = "tag" class = "title" type = "text" placeholder = "tag"/>
       <textarea name="editor" placeholder="Content here ...."></textarea>

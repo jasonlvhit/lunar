@@ -1,0 +1,11 @@
+body {
+    padding: 0;
+    margin: 0;
+    background-color: #f9f9f7;
+}
+
+.editor-wrapper {
+    max-width: 880px;
+    padding: 10px;
+    margin: 60px auto;
+}

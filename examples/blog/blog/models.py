@@ -2,7 +2,7 @@ from pumpkin import database
 
 class Post_Tag_Re(database.Model):
     id = database.PrimaryKeyField()
-    post_id = database.ForeignKeyField('self_define_post')
+    post_id = database.ForeignKeyField('post')
     tag_id = database.ForeignKeyField('tag')
 
     def __repr__(self):
@@ -29,7 +29,7 @@ class Tag(database.Model):
     id = database.PrimaryKeyField()
     name = database.CharField(100)
 
-    posts = database.ManyToManyField(rel='post_tag_re', to_table='self_define_post')
+    posts = database.ManyToManyField(rel='post_tag_re', to_table='post')
 
     def __repr__(self):
         return '<Tag %s>' % self.name

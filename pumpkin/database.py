@@ -8,9 +8,6 @@ import sqlite3
 from .pumpkin import app_stack
 
 
-PUMPKIN_CONFIG = app_stack.top().config
-
-
 class Database(object):
     pass
 
@@ -83,7 +80,7 @@ class Sqlite(Database):
             self.commit()
         return cursor
 
-db = Sqlite(PUMPKIN_CONFIG['DATABASE_NAME'])
+db = Sqlite(app_stack.top().config['DATABASE_NAME'])
 
 
 class Field(object):
