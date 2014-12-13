@@ -152,7 +152,7 @@ class Response(BaseObject):
         # body
         self._body = None
         self.set_body(body)
-        
+
     @property
     def cookies(self):
         if not self._cookies:

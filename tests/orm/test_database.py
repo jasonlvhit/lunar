@@ -16,7 +16,8 @@ def setup_database():
     database.db.create_table(Post_Tag_Re)
 
     for i in range(1, 6):
-        get_cursor().execute('insert into author(name) values("test author ' + str(i) + '");')
+        get_cursor().execute(
+            'insert into author(name) values("test author ' + str(i) + '");')
 
     for i in range(1, 6):
         get_cursor().execute(
@@ -24,7 +25,8 @@ def setup_database():
                 str(i), str(i), str(i)))
 
     for i in range(1, 6):
-        get_cursor().execute('insert into tag(name) values("test tag ' + str(i) + '");')
+        get_cursor().execute(
+            'insert into tag(name) values("test tag ' + str(i) + '");')
 
 
 def teardown_database():
@@ -35,6 +37,7 @@ def teardown_database():
 
 
 class BaseTests(unittest.TestCase):
+
     def setUp(self):
         setup_database()
 
@@ -73,6 +76,7 @@ class BaseTests(unittest.TestCase):
 
 
 class ModelTests(BaseTests):
+
     def test_self_define_tablename(self):
         self.assertEqual(Post.__tablename__, 'self_define_post')
 
@@ -92,8 +96,10 @@ class ModelTests(BaseTests):
     def test_refed_fields(self):
         post_refed_fields = ['tags']
         tag_refed_fields = ['posts']
-        self.assertEqual([i for i in Post.__refed_fields__.keys()], post_refed_fields)
-        self.assertEqual([i for i in Tag.__refed_fields__.keys()], tag_refed_fields)
+        self.assertEqual(
+            [i for i in Post.__refed_fields__.keys()], post_refed_fields)
+        self.assertEqual(
+            [i for i in Tag.__refed_fields__.keys()], tag_refed_fields)
 
     def test_relationship(self):
         pass
@@ -105,7 +111,8 @@ class QueryTests(BaseTests):
         author = Author(name='test author 6')
         database.db.add(author)
         database.db.commit()
-        post = Post(title='test title 6', content='test content 6', author_id='6', pub_date=datetime.now())
+        post = Post(title='test title 6', content='test content 6',
+                    author_id='6', pub_date=datetime.now())
         database.db.add(post)
         database.db.commit()
         c = database.db.execute('select * from author;')
@@ -138,6 +145,7 @@ class QueryTests(BaseTests):
 
         p3 = Post.delete('id < 3').commit()
         self.assertEqual(p3.rowcount, 1)
+
     def test_update(self):
         p1 = Post.update(id=5).set(title="new title 5").commit()
         self.assertEqual(p1.rowcount, 1)
@@ -154,7 +162,6 @@ class QueryTests(BaseTests):
     def test_many_to_many(self):
         posts = Tag.select().first().posts.all()
         tags = Post.select().first().tags.all()
-
 
     def test_mtom_append(self):
         p = Post.get(id=1)[0]
@@ -174,6 +181,7 @@ class QueryTests(BaseTests):
 
 
 class TestBasicFunction(BaseTests):
+
     def test_count(self):
         c1 = Post.select().count()
         self.assertEqual(c1, 5)

@@ -83,7 +83,7 @@ class Writer(object):
     """
 
     def __init__(self):
-        self.co = [] # python intermediate code
+        self.co = []  # python intermediate code
         self._blocks = {}
 
     def dispatcher(fn):

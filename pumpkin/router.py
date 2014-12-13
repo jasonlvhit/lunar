@@ -8,7 +8,6 @@ else:
     from urllib.parse import parse_qs
 
 
-
 class RouterException(Exception):
     pass
 
@@ -104,4 +103,3 @@ class Router(object):
 
     def all_callables(self):
         return self.rules.values()
-

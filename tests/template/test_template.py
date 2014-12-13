@@ -175,6 +175,7 @@ class SubtemplateTest(unittest.TestCase):
             'test_include.html').render()
         self.assertEqual(rendered, "<p>Included</p>")
 
+
 def runtest():
     unittest.main()
 

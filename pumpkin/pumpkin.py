@@ -317,7 +317,7 @@ class Pumpkin(object):
         else:
             try:
                 r = self.handle_router()
-            # 500 
+            # 500
             except Exception as e:
                 return PumpkinException(500, self._response, self._server_handler, self.DEBUG)()
 

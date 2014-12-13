@@ -10,6 +10,7 @@ from .pumpkin import app_stack
 
 PUMPKIN_CONFIG = app_stack.top().config
 
+
 class Database(object):
     pass
 

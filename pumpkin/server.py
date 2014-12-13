@@ -28,9 +28,12 @@ class WSGIRefServer(ServerAdapter):
         httpd = make_server(self.host, self.port, app)
         httpd.serve_forever()
 
+
 class TornadoServer(ServerAdapter):
+
     """Tornado server for test and example.
     """
+
     def run(self, app):
         import tornado.wsgi
         import tornado.httpserver
@@ -40,9 +43,12 @@ class TornadoServer(ServerAdapter):
         server.listen(port=self.port, address=self.host)
         tornado.ioloop.IOLoop.instance().start()
 
+
 class TwistedServer(ServerAdapter):
+
     """Twisted server for test purpose
     """
+
     def run(self, app):
         from twisted.web import server, wsgi
         from twisted.internet import reactor
@@ -51,10 +57,13 @@ class TwistedServer(ServerAdapter):
         reactor.listenTCP(port=self.port, factory=server, interface=self.host)
         reactor.run()
 
+
 class WerkzeugServer(ServerAdapter):
+
     """Werkzeug server for test purpose
     """
+
     def run(self, app):
         from werkzeug.serving import run_simple
-        run_simple(self.host, self.port, app, use_debugger=True, use_reloader=True)
-
+        run_simple(
+            self.host, self.port, app, use_debugger=True, use_reloader=True)
