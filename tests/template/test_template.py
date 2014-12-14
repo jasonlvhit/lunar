@@ -1,7 +1,12 @@
 import os
 import unittest
-from pumpkin.template import Template, Loader
+from pumpkin.template import Template, Loader, TemplateException
 
+
+class LoaderTests(unittest.TestCase):
+    def test_loader_with_non_file(self):
+        loader = Loader()
+        self.assertRaises(TemplateException, loader.load, 'hello.html')
 
 class BaseTests(unittest.TestCase):
 
@@ -134,7 +139,6 @@ class BaseTests(unittest.TestCase):
             content="<p>hello escape</p>")
         self.assertEqual(rendered, '<p>hello escape</p>')
 
-
 class FunctionTest(unittest.TestCase):
 
     def test_simple_1(self):
@@ -175,9 +179,6 @@ class SubtemplateTest(unittest.TestCase):
             'test_include.html').render()
         self.assertEqual(rendered, "<p>Included</p>")
 
-
-def runtest():
-    unittest.main()
 
 if __name__ == '__main__':
     unittest.main()

@@ -27,6 +27,11 @@ class RouterTest(unittest.TestCase):
         self.router.register('/', just_a_callable, ['GET'])
         self.assertIn(just_a_callable, self.router.methods['GET'])
 
+    def test_call_magic_method(self):
+        self.router.register('/', just_a_callable, ['GET'])
+        r = self.router('/')
+        self.assertEqual(r, (just_a_callable, None))
+
     def test_register_with_callable_and_illegal_path(self):
         self.assertRaises(
             RouterException, self.router.register, '$$', just_a_callable, ['GET'])
@@ -70,3 +75,12 @@ class RouterTest(unittest.TestCase):
         self.router.register('/post', just_a_callable, ['GET'])
         self.assertRaises(
             RouterException, self.router.url_for, another_callable)
+
+    def test_all_callable(self):
+        self.router.register('/', just_a_callable, ['GET'])
+        r = self.router.all_callables()
+        self.assertEqual(r, [just_a_callable])
+        self.router.register('/post', another_callable, ['GET'])
+        r = self.router.all_callables()
+        self.assertEqual(r, [another_callable, just_a_callable])
+
