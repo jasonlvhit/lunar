@@ -26,7 +26,10 @@ class Sqlite(Database):
         self.__tabledict__ = {}
 
     def create_all(self):
-        pass
+        for k, v in self.__tabledict__.items():
+            if issubclass(v, Model):
+                print("create table %s..." %k)
+                self.create_table(v)
 
     def create_table(self, model):
         c = []

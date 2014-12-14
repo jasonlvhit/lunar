@@ -9,9 +9,9 @@ What is Pumpkin?
 
 Pumpkin是一个玩具式的网络框架，基于PEP333和它的进化版PEP3333，它包括
 
-*  一个模板引擎: "https://github.com/jasonlvhit/pumpkin/blob/master/pumpkin/template.py"
-*  一个Sqlite的ORM框架: "https://github.com/jasonlvhit/pumpkin/blob/master/pumpkin/database.py"
-*  一个Router，用于请求转发和路由: "https://github.com/jasonlvhit/pumpkin/blob/master/pumpkin/router.py"
+*  一个模板引擎: https://github.com/jasonlvhit/pumpkin/blob/master/pumpkin/template.py
+*  一个Sqlite的ORM框架: https://github.com/jasonlvhit/pumpkin/blob/master/pumpkin/database.py
+*  一个Router，用于请求转发和路由: https://github.com/jasonlvhit/pumpkin/blob/master/pumpkin/router.py
 *  一个简单的对Request和Response对象的封装
 
 查看example来看看这是怎么运作的。
