@@ -11,6 +11,18 @@ class Post_Tag_Re(database.Model):
             )
 
 
+class Comment(database.Model):
+    id = database.PrimaryKeyField()
+    title = database.CharField(100)
+    content = database.CharField(400)
+    pub_date = database.DateField()
+
+    post_id = database.ForeignKeyField('post')
+
+    def __repr__(self):
+        return '<Comment %s>' % self.title
+
+
 class Post(database.Model):
     __tablename__ = 'post'
 
@@ -20,6 +32,7 @@ class Post(database.Model):
     pub_date = database.DateField()
 
     tags = database.ManyToManyField(rel='post_tag_re', to_table='tag')
+    comments = database.ForeignKeyReverseField('comment')
 
     def __repr__(self):
         return '<Post %s>' % self.title

@@ -1,10 +1,37 @@
 <!DOCTYPE html>
 <html>
-<head lang="en">
+<head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ app.url_for('static', 'style.css') }}" />
     <title>{{ post.title }}</title>
 </head>
 <body>
-    {{ post.content }}
+	<div class="post-main">
+	    <h3>{{ post.title }}</h3>
+    	<pre>{{ post.pub_date }}</pre>
+    	<p>{{ post.content }}</p>
+    </div>
+
+    <div class="create-comment">
+    	<form action ="{{ app.url_for(views.create_comment) }}" method = post>
+    	  	<input name = "post_id" type = "hidden" value = "{{ post.id }}"> 
+			<input name = "title" type="text" placeholder="title" /><br>
+			<textarea name = "content" type = "text" placeholder = "content" ></textarea>
+			<input type = "submit" value = "Add a Comment"/>
+		</form>
+    </div>
+
+    <div class="comments">
+    	<ul>
+    		{% for comment in post.comments.all() %}
+    			<li>
+    				<h5> {{ comment.title }}</h5>
+    				<pre> {{ comment.pub_date }}</pre>
+    				<p> {{ comment.content }}</p>
+    			</li>
+    		{% endfor %}
+    	</ul>
+    </div>
+
 </body>
 </html>

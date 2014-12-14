@@ -1,7 +1,8 @@
 from datetime import datetime
-from .models import Post, Tag
 from pumpkin.database import db
+
 from . import app
+from .models import Post, Tag, Comment
 
 @app.route('/')
 def index():
@@ -39,3 +40,20 @@ def create_post():
 def show_post(id):
     p = Post.get(id=id)[0]
     return app.render_template('post.html', post=p)
+
+@app.route('/tag/<int:id>')
+def show_tag(id):
+    t = Tag.get(id=id)[0]
+    return app.render_template('tag.html', tag=t)
+
+@app.route('/new_comment', methods=['POST'])
+def create_comment():
+    post_id = app.request.forms['post_id']
+    title = app.request.forms['title']
+    content = app.request.forms['content']
+    comment = Comment(title=title, content=content, pub_date=datetime.now(), post_id=post_id)
+    db.add(comment)
+    db.commit()
+    return app.redirect(app.url_for(show_post, post_id))
+
+
