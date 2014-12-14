@@ -305,7 +305,10 @@ class Model(MetaModel('NewBase', (object, ), {})):
 
     @classmethod
     def get(cls, *args, **kwargs):
-        return SelectQuery(cls, args).where(**kwargs).all()
+        # get method only supposes to be used by querying by id.
+        # UserModel.get(id=2)
+        # return a single instance.
+        return SelectQuery(cls, args).where(**kwargs).first()
 
     @classmethod
     def select(cls, *args):
@@ -359,7 +362,11 @@ class SelectQuery(BaseQuery):
         )
 
     def _make_instance(self, descriptor, r):
-        ins = self.klass(**dict(zip(descriptor, r)))
+        # must handle empty case.
+        try:
+            ins = self.klass(**dict(zip(descriptor, r)))
+        except TypeError:
+            return None
         for _, rf in ins.__refed_fields__.items():
             rf.id = ins.id
 

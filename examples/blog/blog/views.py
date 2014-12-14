@@ -38,12 +38,12 @@ def create_post():
 
 @app.route('/post/<int:id>')
 def show_post(id):
-    p = Post.get(id=id)[0]
+    p = Post.get(id=id)
     return app.render_template('post.html', post=p)
 
 @app.route('/tag/<int:id>')
 def show_tag(id):
-    t = Tag.get(id=id)[0]
+    t = Tag.get(id=id)
     return app.render_template('tag.html', tag=t)
 
 @app.route('/new_comment', methods=['POST'])

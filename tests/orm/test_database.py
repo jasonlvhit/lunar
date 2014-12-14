@@ -121,7 +121,7 @@ class QueryTests(BaseTests):
         self.assertEqual(len(c.fetchall()), 6)
 
     def test_get(self):
-        p1 = Post.get(id=1)[0]
+        p1 = Post.get(id=1)
         self.assertEqual(p1.title, 'test title 1')
         self.assertEqual(p1.content, 'test content 1')
         self.assertEqual(p1.author_id, 1)
@@ -149,13 +149,13 @@ class QueryTests(BaseTests):
     def test_update(self):
         p1 = Post.update(id=5).set(title="new title 5").commit()
         self.assertEqual(p1.rowcount, 1)
-        p2 = Post.get(id=5)[0]
+        p2 = Post.get(id=5)
         self.assertEqual(p2.title, 'new title 5')
         p3 = Post.update(id=-1).set(title="unexisted id").commit()
         self.assertEqual(p3.rowcount, 0)
 
     def test_foreignkeyfields(self):
-        posts = Author.get(id=5)[0].posts.all()
+        posts = Author.get(id=5).posts.all()
         self.assertEqual(len(posts), 1)
         self.assertEqual(posts[0].id, 5)
 
@@ -164,7 +164,7 @@ class QueryTests(BaseTests):
         tags = Post.select().first().tags.all()
 
     def test_mtom_append(self):
-        p = Post.get(id=1)[0]
+        p = Post.get(id=1)
         p.tags.append(Tag.select().first())
 
     def test_mtom_remove(self):
