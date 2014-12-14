@@ -287,7 +287,8 @@ class Pumpkin(object):
         if 'Last-Modified' not in response.headers.keys():
             response.headers['Last-Modified'] = last_modified_str
 
-        response.set_body(body=(open(path, 'r').read()))
+        with open(path, 'r') as f:
+            response.set_body(body=(f.read()))
         return response
 
     def handle_router(self):
