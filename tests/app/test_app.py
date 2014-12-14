@@ -1,8 +1,16 @@
 import os
+import sys
 import time
 import unittest
 
-from cStringIO import StringIO
+if sys.version < '3':
+    try:
+        from cStringIO import StringIO
+    except ImportError:
+        import StringIO
+
+else:
+    from io import BytesIO as StringIO
 
 from pumpkin.pumpkin import Pumpkin, PumpkinException
 from pumpkin.router import RouterException
@@ -209,7 +217,7 @@ class AppTest(unittest.TestCase):
             'wsgi.url_scheme': 'http',
             'SERVER_PORT': '80',
             'PATH_INFO': '/test_args',
-            'wsgi.input': StringIO('title=test&tag=python'),
+            'wsgi.input': StringIO(b'title=test&tag=python'),
             'REQUEST_METHOD':'POST'
         }
         r = app(env, start_response)
@@ -225,7 +233,7 @@ class AppTest(unittest.TestCase):
         }
         r = app(env, start_response)
         self.assertEqual(app._response.status, '200 OK')
-        self.assertEqual(app._response.body, '1')
+        self.assertEqual(app._response.body, b'1')
 
     def test_handle_static(self):
         env = {

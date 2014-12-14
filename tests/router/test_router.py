@@ -79,8 +79,8 @@ class RouterTest(unittest.TestCase):
     def test_all_callable(self):
         self.router.register('/', just_a_callable, ['GET'])
         r = self.router.all_callables()
-        self.assertEqual(r, [just_a_callable])
+        self.assertEqual(set(r), set([just_a_callable]))
         self.router.register('/post', another_callable, ['GET'])
         r = self.router.all_callables()
-        self.assertEqual(r, [another_callable, just_a_callable])
+        self.assertEqual(set(r), set([another_callable, just_a_callable]))
 
