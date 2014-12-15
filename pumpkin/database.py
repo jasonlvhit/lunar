@@ -2,7 +2,7 @@
 """ A lightweight orm framework for sqlite.
     
 """
-
+import copy
 import sqlite3
 import sys
 import threading
@@ -305,11 +305,15 @@ class Model(MetaModel('NewBase', (object, ), {})):
         if not max_id:
             max_id = 0
         self.id = max_id + 1
-        for _, v in self.__refed_fields__.items():
+
+        for k, v in self.__refed_fields__.items():
             if isinstance(v, ForeignKeyReverseField) or isinstance(v, ManyToManyField):
                 v.id = self.id
+                setattr(self, k, copy.deepcopy(v))
+
         for k, v in kwargs.items():
             setattr(self, k, v)
+
 
     @classmethod
     def get(cls, *args, **kwargs):
@@ -375,9 +379,9 @@ class SelectQuery(BaseQuery):
             ins = self.klass(**dict(zip(descriptor, r)))
         except TypeError:
             return None
-        for _, rf in ins.__refed_fields__.items():
-            rf.id = ins.id
-
+        for _, rf in ins.__dict__.items():
+            if isinstance(rf, ManyToManyField) or isinstance(rf, ForeignKeyReverseField):
+                rf.id = ins.id
         return ins
 
     def all(self):

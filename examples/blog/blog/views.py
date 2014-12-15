@@ -52,6 +52,6 @@ def create_comment():
     comment = Comment(title=title, content=content, pub_date=datetime.now(), post_id=post_id)
     db.add(comment)
     db.commit()
-    return app.redirect(app.url_for(show_post, post_id))
+    return app.redirect(app.url_for(show_post, id=post_id))
 
 
