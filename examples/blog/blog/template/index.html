@@ -9,16 +9,20 @@
     <h2 id="title">Pumpkin Blog.</h2>
     <div class="post-list">
         <ul>
-            {% for post in posts %}
-            <li><h4> <a href="{{ app.url_for(views.show_post, id=post.id) }}"> {{ post.title }} </a></h4>
-                <pre>{{ post.pub_date }}</pre>
-                <p>tags:
-                {% for tag in post.tags.all() %}
-                    <a href="{{ app.url_for(views.show_tag, id=tag.id) }}">{{ tag.name }} </a>&nbsp;
+            {% if len(posts)==0 %}
+                <p>no posts yet.</p>
+            {% else %}
+                {% for post in posts %}
+                <li><h4> <a href="{{ app.url_for(views.show_post, id=post.id) }}"> {{ post.title }} </a></h4>
+                    <pre>{{ post.pub_date }}</pre>
+                    <p>tags:
+                    {% for tag in post.tags.all() %}
+                        <a href="{{ app.url_for(views.show_tag, id=tag.id) }}">{{ tag.name }} </a>&nbsp;
+                    {% endfor %}
+                    </p>
+                </li>
                 {% endfor %}
-                </p>
-            </li>
-            {% endfor %}
+            {% endif %}
         </ul>
     </div>
 </body>

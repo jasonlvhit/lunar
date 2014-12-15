@@ -10,27 +10,32 @@
 	    <h3>{{ post.title }}</h3>
     	<pre>{{ post.pub_date }}</pre>
     	<p>{{ post.content }}</p>
-    </div>
+    
 
-    <div class="create-comment">
-    	<form action ="{{ app.url_for(views.create_comment) }}" method = post>
-    	  	<input name = "post_id" type = "hidden" value = "{{ post.id }}"> 
-			<input name = "title" type="text" placeholder="title" /><br>
-			<textarea name = "content" type = "text" placeholder = "content" ></textarea>
-			<input type = "submit" value = "Add a Comment"/>
-		</form>
-    </div>
+        <div class="create-comment">
+        	<form action ="{{ app.url_for(views.create_comment) }}" method = post>
+        	  	<input name = "post_id" type = "hidden" value = "{{ post.id }}"> 
+    			<input name = "title" type="text" placeholder="title" /><br>
+    			<textarea name = "content" type = "text" placeholder = "content" ></textarea><br>
+    			<input type = "submit" value = "Add a Comment"/>
+    		</form>
+        </div>
 
-    <div class="comments">
-    	<ul>
-    		{% for comment in post.comments.all() %}
-    			<li>
-    				<h5> {{ comment.title }}</h5>
-    				<pre> {{ comment.pub_date }}</pre>
-    				<p> {{ comment.content }}</p>
-    			</li>
-    		{% endfor %}
-    	</ul>
+        <div class="comments">
+        	<ul>
+                {% if len(post.comments.all())==0 %}
+                    <p>no comments yet</p>
+                {% else %}
+            		{% for comment in post.comments.all() %}
+            			<li>
+            				<h5> {{ comment.title }}</h5>
+            				<pre> {{ comment.pub_date }}</pre>
+            				<p> {{ comment.content }}</p>
+            			</li>
+            		{% endfor %}
+                {% endif %}
+        	</ul>
+        </div>
     </div>
 
 </body>
