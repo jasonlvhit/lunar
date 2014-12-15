@@ -4,10 +4,18 @@
 """
 
 import sqlite3
+import sys
 import threading
+
 
 from .pumpkin import app_stack
 
+def u(r):
+    def f(x):
+        if sys.version < '3' and isinstance(x, unicode):
+            return x.encode('utf-8')
+        return x
+    return list(map(f, r))
 
 class Database(threading.local):
     pass
@@ -83,8 +91,6 @@ class Sqlite(Database):
         if commit:
             self.commit()
         return cursor
-
-db = Sqlite(app_stack.top().config['DATABASE_NAME'])
 
 
 class Field(object):
@@ -163,7 +169,7 @@ class ForeignKeyReverseField(object):
     def update(self, name, tablename):
         self.name = name
         self.tablename = tablename
-        self.from_class = db.__tabledict__[self.from_table]
+        self.from_class = app_stack.top().db.__tabledict__[self.from_table]
         for name, attr in self.from_class.__dict__.items():
             if isinstance(attr, ForeignKeyField) and attr.to_table == self.tablename:
                 self.re = name
@@ -191,7 +197,7 @@ class ManyToManyField(object):
         self.tablename = tablename
 
     def _get_rel_names(self):
-        rel_class = db.__tabledict__[self.rel]
+        rel_class = app_stack.top().db.__tabledict__[self.rel]
         self_id = None
         rel_id = None
         for name, field in rel_class.__fields__.items():
@@ -206,14 +212,14 @@ class ManyToManyField(object):
 
     def _select(self):
         self_id, rel_id = self._get_rel_names()
-        c = db.execute(
+        c = app_stack.top().db.execute(
             'select "%s" from %s where %s = "%s";' % (
                 rel_id, self.rel, self_id, self.id)
         )
         rs = c.fetchall()
         if len(rs) == 0:
-            return db.__tabledict__[self.to_table].select().where('id=-1')
-        return db.__tabledict__[self.to_table].select().where(
+            return app_stack.top().db.__tabledict__[self.to_table].select().where('id=-1')
+        return app_stack.top().db.__tabledict__[self.to_table].select().where(
             ' or '.join(['id = "%s"' % c[0] for c in rs])
         )
 
@@ -227,7 +233,7 @@ class ManyToManyField(object):
         insert into rel_table(self_id, rel_id) values(self.id, ins.id);
         """
         self_id, rel_id = self._get_rel_names()
-        c = db.execute(
+        c = app_stack.top().db.execute(
             'insert into %s(%s, %s) values(%s, %s);' % (
                 self.rel, self_id, rel_id, self.id, ins.id
             ), commit=True
@@ -242,7 +248,7 @@ class ManyToManyField(object):
         """
         if not self.self_id:
             self.self_id, _ = self._get_rel_names()
-        c = db.execute(
+        c = app_stack.top().db.execute(
             'delete from %s where %s = "%s" and %s;' % (
                 self.rel, self.self_id, self.id,
                 ' and '.join(list(args))
@@ -267,7 +273,8 @@ class MetaModel(type):
         else:
             setattr(cls, '__tablename__', cls.__name__.lower())
 
-        db.__tabledict__[cls.__tablename__] = cls
+        if app_stack.top().db:
+            app_stack.top().db.__tabledict__[cls.__tablename__] = cls
 
         has_primary_key = False
         setattr(cls, 'has_relationship', False)
@@ -374,16 +381,16 @@ class SelectQuery(BaseQuery):
         return ins
 
     def all(self):
-        c = db.execute(self.sql)
+        c = app_stack.top().db.execute(self.sql)
         descriptor = list(i[0] for i in c.description)
         rs = c.fetchall()
-        ins_list = [self._make_instance(descriptor, r) for r in rs]
+        ins_list = [self._make_instance(descriptor, u(r)) for r in rs]
         return ins_list
 
     def first(self):
-        c = db.execute(self.sql)
+        c = app_stack.top().db.execute(self.sql)
         rs = c.fetchone()
-        return self._make_instance(list(i[0] for i in c.description), rs)
+        return self._make_instance(list(i[0] for i in c.description), u(rs))
 
     def where(self, *args, **kwargs):
         c = ['%s = "%s"' % (k, str(v)) for k, v in kwargs.items()]
@@ -398,7 +405,7 @@ class SelectQuery(BaseQuery):
             func + '("' + ', '.join([str(i).strip('\'').strip('"')
                                      for i in self.query]).strip(',') + '")', self.klass.__tablename__
         )
-        c = db.execute(sql)
+        c = app_stack.top().db.execute(sql)
         rs = c.fetchone()
         return rs[0]
 
@@ -479,7 +486,7 @@ class UpdateQuery(BaseQuery):
         return self
 
     def commit(self):
-        c = db.execute(self.sql, commit=True)
+        c = app_stack.top().db.execute(self.sql, commit=True)
         return c
 
 
@@ -502,5 +509,5 @@ class DeleteQuery(BaseQuery):
         return self.base_statement % self.klass.__tablename__
 
     def commit(self):
-        c = db.execute(self.sql, commit=True)
+        c = app_stack.top().db.execute(self.sql, commit=True)
         return c
