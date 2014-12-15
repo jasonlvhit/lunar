@@ -28,6 +28,7 @@ import os
 import time
 import sys
 import traceback
+import threading
 import mimetypes
 
 from functools import wraps
@@ -56,7 +57,7 @@ The Main object of pumpkin.
 """
 
 
-class _Stack(object):
+class _Stack(threading.local):
 
     def __init__(self):
         self._Stack = []
@@ -143,9 +144,15 @@ class Pumpkin(object):
         self.config = {}
         self.config.setdefault('DATABASE_NAME', 'pumpkin.db')
 
+        # db
+        self.db = None
+
         # push to the _app_stack
         global app_stack
         app_stack.push(self)
+
+    def set_db(self, db):
+        self.db = db
 
     def set_template_engine(self, engine):
         self.loader.update_template_engine(engine)

@@ -183,7 +183,7 @@ class Response(BaseObject):
         self._body = str(body)
         # Python 3 Bytes hack
         if sys.version > '3':
-            self._body = bytes(self._body, 'iso-8859-1')
+            self._body = bytes(self._body, 'utf-8')
 
     def get_content_type(self):
         return self.headers['Content-Type']

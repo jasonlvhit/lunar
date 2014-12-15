@@ -1,8 +1,6 @@
 from datetime import datetime
-from pumpkin.database import db
-
-from . import app
-from .models import Post, Tag, Comment
+from . import app, db
+from .models import Comment, Post, Tag
 
 @app.route('/')
 def index():
