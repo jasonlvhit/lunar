@@ -12,7 +12,7 @@ if sys.version < '3':
 else:
     from io import BytesIO as StringIO
 
-from pumpkin.pumpkin import Pumpkin, PumpkinException
+from pumpkin.pumpkin import Pumpkin, PumpkinException, _Stack
 from pumpkin.router import RouterException
 
 def start_response(status, headerlist):
@@ -91,6 +91,31 @@ def redirect_with_url():
 @app.route('/test_handler_exception')
 def handler_exception():
     raise RuntimeError
+
+
+class StackTest(unittest.TestCase):
+
+    def setUp(self):
+        self.stack = _Stack()
+
+    def tearDown(self):
+        self.stack = None
+
+    def test_push_stack(self):
+        self.stack.push(1)
+        self.assertEqual(self.stack.top(), 1)
+
+    def test_pop_stack(self):
+        self.assertEqual(len(self.stack), 0)
+        self.stack.push(1)
+        self.assertEqual(len(self.stack), 1)
+        self.assertEqual(self.stack.pop(), None)
+        self.assertEqual(len(self.stack), 0)
+
+    def test_empty_stack(self):
+        self.assertTrue(self.stack.empty())
+        self.stack.push(1)
+        self.assertFalse(self.stack.empty())
 
 class AppTest(unittest.TestCase):
 
