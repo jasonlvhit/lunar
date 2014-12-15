@@ -128,6 +128,19 @@ class AppTest(unittest.TestCase):
     def test_run_with_not_subclass_of_server_adapter(self):
         self.assertRaises(RuntimeError, app.run, server=SimpleClass)
 
+    def test_static_url_for_cache(self):
+        env = {
+            'HTTP_HOST': 'localhost',
+            'wsgi.url_scheme': 'http',
+            'SERVER_PORT': '80',
+        }
+        r = app(env, start_response)
+        url = app.url_for('static', 'style.css')
+        self.assertEqual(
+            app.static_url_cache, {'style.css':'http://localhost/static/style.css'})
+        self.assertEqual(
+            app.url_for('static', 'style.css'), 'http://localhost/static/style.css')
+            
     def test_static_url_for_with_http_standard_port(self):
         env = {
             'HTTP_HOST': 'localhost',
