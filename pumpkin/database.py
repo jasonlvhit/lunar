@@ -9,11 +9,12 @@ import threading
 
 
 from .pumpkin import app_stack
+encoding_type = sys.getfilesystemencoding()
 
 def u(r):
     def f(x):
         if sys.version < '3' and isinstance(x, unicode):
-            return x.encode('utf-8')
+            return x.encode(encoding_type)
         return x
     return list(map(f, r))
 
