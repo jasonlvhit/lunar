@@ -4,11 +4,12 @@
 """
 
 import sqlite3
+import threading
 
 from .pumpkin import app_stack
 
 
-class Database(object):
+class Database(threading.local):
     pass
 
 
