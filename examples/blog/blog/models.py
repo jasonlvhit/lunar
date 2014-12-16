@@ -1,6 +1,7 @@
 from pumpkin import database
+from . import db
 
-class Post_Tag_Re(database.Model):
+class Post_Tag_Re(db.Model):
     id = database.PrimaryKeyField()
     post_id = database.ForeignKeyField('post')
     tag_id = database.ForeignKeyField('tag')
@@ -11,7 +12,7 @@ class Post_Tag_Re(database.Model):
             )
 
 
-class Comment(database.Model):
+class Comment(db.Model):
     id = database.PrimaryKeyField()
     title = database.CharField(100)
     content = database.CharField(400)
@@ -23,7 +24,7 @@ class Comment(database.Model):
         return '<Comment %s>' % self.title
 
 
-class Post(database.Model):
+class Post(db.Model):
     __tablename__ = 'post'
 
     id = database.PrimaryKeyField()
@@ -38,7 +39,7 @@ class Post(database.Model):
         return '<Post %s>' % self.title
 
 
-class Tag(database.Model):
+class Tag(db.Model):
     id = database.PrimaryKeyField()
     name = database.CharField(100)
 

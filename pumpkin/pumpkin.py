@@ -144,15 +144,9 @@ class Pumpkin(object):
         self.config = {}
         self.config.setdefault('DATABASE_NAME', 'pumpkin.db')
 
-        # db
-        self.db = None
-
         # push to the _app_stack
         global app_stack
         app_stack.push(self)
-
-    def set_db(self, db):
-        self.db = db
 
     def set_template_engine(self, engine):
         self.loader.update_template_engine(engine)

@@ -2,18 +2,19 @@ from datetime import datetime
 import unittest
 
 from pumpkin import database
+from . import db
 from .models import Post_Tag_Re, Post, Author, Tag
 
 
 def get_cursor():
-    return database.db.conn.cursor()
+    return db.conn.cursor()
 
 
 def setup_database():
-    database.db.create_table(Author)
-    database.db.create_table(Post)
-    database.db.create_table(Tag)
-    database.db.create_table(Post_Tag_Re)
+    db.create_table(Author)
+    db.create_table(Post)
+    db.create_table(Tag)
+    db.create_table(Post_Tag_Re)
 
     for i in range(1, 6):
         get_cursor().execute(
@@ -30,10 +31,10 @@ def setup_database():
 
 
 def teardown_database():
-    database.db.drop_table(Author)
-    database.db.drop_table(Post)
-    database.db.drop_table(Tag)
-    database.db.drop_table(Post_Tag_Re)
+    db.drop_table(Author)
+    db.drop_table(Post)
+    db.drop_table(Tag)
+    db.drop_table(Post_Tag_Re)
 
 
 class BaseTests(unittest.TestCase):
@@ -65,14 +66,12 @@ class BaseTests(unittest.TestCase):
     def test_init(self):
         init_dict = {
             'author': Author,
-            'newbase': database.MetaModel('NewBase', (object, ), {}),
             'tag': Tag,
             'post_tag_re': Post_Tag_Re,
-            'model': database.Model,
             'self_define_post': Post,
         }
 
-        self.assertEqual(init_dict, database.db.__tabledict__)
+        self.assertEqual(init_dict, db.__tabledict__)
 
 
 class ModelTests(BaseTests):
@@ -109,15 +108,15 @@ class QueryTests(BaseTests):
 
     def test_add(self):
         author = Author(name='test author 6')
-        database.db.add(author)
-        database.db.commit()
+        db.add(author)
+        db.commit()
         post = Post(title='test title 6', content='test content 6',
                     author_id='6', pub_date=datetime.now())
-        database.db.add(post)
-        database.db.commit()
-        c = database.db.execute('select * from author;')
+        db.add(post)
+        db.commit()
+        c = db.execute('select * from author;')
         self.assertEqual(len(c.fetchall()), 6)
-        c = database.db.execute('select * from self_define_post;')
+        c = db.execute('select * from self_define_post;')
         self.assertEqual(len(c.fetchall()), 6)
 
     def test_get(self):

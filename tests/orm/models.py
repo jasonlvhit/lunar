@@ -1,6 +1,7 @@
+from . import db
 from pumpkin import database
 
-class Post_Tag_Re(database.Model):
+class Post_Tag_Re(db.Model):
     """
     Many to many relationship test.
     """
@@ -14,7 +15,7 @@ class Post_Tag_Re(database.Model):
             )
 
 
-class Post(database.Model):
+class Post(db.Model):
     __tablename__ = 'self_define_post'
 
     id = database.PrimaryKeyField()
@@ -29,7 +30,7 @@ class Post(database.Model):
         return '<Post %s>' % self.title
 
 
-class Author(database.Model):
+class Author(db.Model):
     id = database.PrimaryKeyField()
     name = database.CharField(100)
 
@@ -38,7 +39,7 @@ class Author(database.Model):
     def __repr__(self):
         return '<Author %s>' % self.name
 
-class Tag(database.Model):
+class Tag(db.Model):
     id = database.PrimaryKeyField()
     name = database.CharField(100)
 
