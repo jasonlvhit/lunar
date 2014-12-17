@@ -1,5 +1,5 @@
 from . import db
-from pumpkin import database
+from lunar import database
 
 class Post_Tag_Re(db.Model):
     """

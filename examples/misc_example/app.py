@@ -1,14 +1,14 @@
-from pumpkin.pumpkin import Pumpkin
+from lunar.lunar import Lunar
 
-app = Pumpkin('__main__')
+app = Lunar('__main__')
 
 
 @app.route('/', methods=["GET", "POST"])
 def index():
-    return "Hello, Pumpkin!"
+    return "Hello, lunar!"
 
 
-#/args?key=pumpkin&count=4
+#/args?key=lunar&count=4
 @app.route('/test_args', methods=["GET"])
 def test_args():
     return app.request.args["key"], app.request.args["count"]
@@ -37,13 +37,13 @@ def test_url_for():
 
 @app.route('/push_session')
 def push_session():
-    app.session['pumpkin'] = "a web framework"
-    return app.session['pumpkin'].value
+    app.session['lunar'] = "a web framework"
+    return app.session['lunar'].value
 
 
 @app.route('/show_session')
 def show_session():
-    return app.session['pumpkin'].value
+    return app.session['lunar'].value
 
 
 @app.route('/show/<int:id>')

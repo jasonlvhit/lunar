@@ -1,6 +1,6 @@
 import os
 import unittest
-from pumpkin.template import Template, Loader, TemplateException
+from lunar.template import Template, Loader, TemplateException
 
 
 class LoaderTests(unittest.TestCase):
@@ -163,11 +163,11 @@ class SubtemplateTest(unittest.TestCase):
 
     def test_extends(self):
         rendered = Loader(os.path.dirname(os.path.realpath(__file__))).load(
-            'test_extends.html').render(title='pumpkin')
+            'test_extends.html').render(title='lunar')
         self.assertEqual(rendered, '''<html>
-<title>pumpkin</title>
+<title>lunar</title>
 <head>
-<p>Hello, this is pumpkin.</p>
+<p>Hello, this is lunar.</p>
 </head>
 <body>
 <p>This block body</p>

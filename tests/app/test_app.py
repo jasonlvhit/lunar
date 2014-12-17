@@ -12,8 +12,8 @@ if sys.version < '3':
 else:
     from io import BytesIO as StringIO
 
-from pumpkin.pumpkin import Pumpkin, PumpkinException, _Stack
-from pumpkin.router import RouterException
+from lunar.lunar import Lunar, LunarException, _Stack
+from lunar.router import RouterException
 
 def start_response(status, headerlist):
     pass
@@ -21,7 +21,7 @@ def start_response(status, headerlist):
 class SimpleClass(object):
     pass
 
-app = Pumpkin('__main__')
+app = Lunar('__main__')
 
 dirname, filename = os.path.split(os.path.abspath(__file__))
 app.root_path = dirname
@@ -29,9 +29,9 @@ app.root_path = dirname
 
 @app.route('/', methods=["GET", "POST"])
 def index():
-    return "Hello, Pumpkin!"
+    return "Hello, lunar!"
 
-#/args?key=pumpkin&count=4
+#/args?key=lunar&count=4
 @app.route('/test_args', methods=["GET"])
 def args():
     return app.request.args["key"], app.request.args["count"]
@@ -70,13 +70,13 @@ def url_for_static():
 
 @app.route('/push_session')
 def push_session():
-    app.session['pumpkin'] = "a web framework"
-    return app.session['pumpkin'].value
+    app.session['lunar'] = "a web framework"
+    return app.session['lunar'].value
 
 
 @app.route('/show_session')
 def show_session():
-    return app.session['pumpkin'].value
+    return app.session['lunar'].value
 
 
 @app.route('/test_redirect')

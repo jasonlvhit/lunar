@@ -1,3 +1,3 @@
-from pumpkin import database
+from lunar import database
 
-db = database.Sqlite('pumpkin.db')
+db = database.Sqlite('lunar.db')

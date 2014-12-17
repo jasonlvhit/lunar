@@ -1,7 +1,7 @@
-from pumpkin import pumpkin
-from pumpkin import database
+from lunar import lunar
+from lunar import database
 
-app = pumpkin.Pumpkin('blog')
+app = lunar.Lunar('blog')
 app.config['DATABASE_NAME'] = 'blog.db'
 
 db = database.Sqlite(app.config['DATABASE_NAME'])

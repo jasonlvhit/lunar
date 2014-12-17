@@ -1,7 +1,7 @@
 import sys
 import re
 
-import pumpkin
+import lunar
 if sys.version < '3':
     from urlparse import parse_qs
 else:
@@ -22,8 +22,8 @@ class Router(object):
         '''
         '/'
         '/hello'
-        '/hello/pumpkin'
-        '/hello/pumpkin/<int:id>'
+        '/hello/lunar'
+        '/hello/lunar/<int:id>'
         '''
         # caution!!!!
         # weird in python 3.3: get nothing to repeat error in python 3

@@ -1,4 +1,4 @@
-from pumpkin import database
+from lunar import database
 from . import db
 
 class Post_Tag_Re(db.Model):

@@ -1,7 +1,7 @@
 """
 Bottle-like Servers strategy.
 
-Method Pumpkin.run accept a subclass of ServerAdapter, create a server 
+Method lunar.run accept a subclass of ServerAdapter, create a server 
 instance and run applications using the run interface provided by ServerAdapter.
 
 So the server must implement the interface 'run' provided by ServerAdapter.
@@ -58,12 +58,3 @@ class TwistedServer(ServerAdapter):
         reactor.run()
 
 
-class WerkzeugServer(ServerAdapter):
-
-    """Werkzeug server for test purpose
-    """
-
-    def run(self, app):
-        from werkzeug.serving import run_simple
-        run_simple(
-            self.host, self.port, app, use_debugger=True, use_reloader=True)

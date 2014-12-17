@@ -1,6 +1,6 @@
 import unittest
 
-from pumpkin.router import Router, RouterException
+from lunar.router import Router, RouterException
 
 
 def just_a_callable():

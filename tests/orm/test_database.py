@@ -1,7 +1,7 @@
 from datetime import datetime
 import unittest
 
-from pumpkin import database
+from lunar import database
 from . import db
 from .models import Post_Tag_Re, Post, Author, Tag
 

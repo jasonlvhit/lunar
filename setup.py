@@ -6,12 +6,12 @@ with open('README.rst') as f:
 version='0.0.1'
 
 setup(
-    name='pumpkin',
+    name='lunar',
     version=version,
-    packages=['pumpkin'],
-    author="jasonlv",
+    packages=['lunar'],
+    author="jasonlyu",
     author_email="jasonlvhit@gmail.com",
-    description="Pumpkin is a WSGI based webframework in pure Python, without any third-party dependency.",
+    description="lunar is a WSGI based webframework in pure Python, without any third-party dependency.",
     classifiers=[
             'Environment :: Web Environment',
             'Intended Audience :: Developers',
