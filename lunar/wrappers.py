@@ -134,11 +134,6 @@ class Request(BaseObject):
     @property
     def if_modified_since(self):
         return self.environ.get('HTTP_IF_MODIFIED_SINCE', '')
-    """
-    @property
-    def url(self):
-        return '\\'.join([self.environ.get('wsgi.url_scheme', '')])
-    """
 
 
 class Response(BaseObject):

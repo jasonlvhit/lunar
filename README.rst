@@ -3,6 +3,7 @@ lunar
 
 A WSGI based webframework.
 
+.. image:: https://cloud.githubusercontent.com/assets/5202391/5469319/20677e82-8615-11e4-9aed-7773f47f7aea.jpg
 
 What is Lunar?
 ----------------
@@ -35,11 +36,4 @@ Happy hacking.
 		app.run()
 
 
-
-About Lunar
---------------
-
-這貨以前叫Pumpkin，因爲PyPI上有個Pumpkin，所以改名叫Lunar。
-
-Lunar是項目中模板引擎的原名。
 

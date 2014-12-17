@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+A template engine.
+"""
 import sys
 import re
 import os
@@ -8,10 +11,6 @@ if sys.version < '3':
     string_escape = 'string-escape'
 else:
     string_escape = 'unicode_escape'
-
-"""
-A simple template engine.
-"""
 
 
 class Walker(object):

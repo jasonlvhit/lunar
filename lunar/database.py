@@ -438,15 +438,6 @@ class SelectQuery(BaseQuery):
     def sum(self):
         return self._base_function('sum')
 
-    def join(self):
-        pass
-
-    def having(self):
-        pass
-
-    def groupby(self):
-        pass
-
     def orderby(self, order=None, by='asc'):
         """
         test_database.Post.select().orderby('id', 'asc').all()
