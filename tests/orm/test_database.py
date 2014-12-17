@@ -158,25 +158,50 @@ class QueryTests(BaseTests):
         self.assertEqual(len(posts), 1)
         self.assertEqual(posts[0].id, 5)
 
-    def test_many_to_many(self):
-        posts = Tag.select().first().posts.all()
-        tags = Post.select().first().tags.all()
+    def test_orderby(self):
+        posts = Post.select().orderby('id', 'asc').all()
+        self.assertEqual([p.id for p in posts], [1, 2, 3, 4, 5])
+        posts = Post.select().orderby('id', 'desc').all()
+        self.assertEqual([p.id for p in posts], [5, 4, 3, 2, 1])
+
+    def test_like(self):
+        posts = Post.select().where('content').like("test%").all()
+        self.assertEqual([p.id for p in Post.select().all()], [i.id for i in posts])
+        posts = Post.select().where('id').like("1").all()
+        self.assertEqual([Post.get(id=1).id], [p.id for p in posts])
+        posts = Post.select().where('content').like('%est%').all()
+        self.assertEqual([p.id for p in Post.select().all()], [i.id for i in posts])
+
+
+class ManytoManyFieldsTest(BaseTests):
 
     def test_mtom_append(self):
         p = Post.get(id=1)
-        p.tags.append(Tag.select().first())
+        t1 = Tag.get(id=1)
+        t2 = Tag.get(id=2)
+        p.tags.append(t1)
+        p.tags.append(t2)
+        self.assertEqual([p.id for p in p.tags.all()], [t1.id, t2.id])
+        self.assertEqual([p.id for p in t1.posts.all()], [p.id])
+        self.assertEqual([p.id for p in t2.posts.all()], [p.id])
 
     def test_mtom_remove(self):
-        pass
+        p = Post.get(id=5)
+        self.assertEqual(p.tags.all(), [])
+        t = Tag.get(id=5)
+        p.tags.append(t)
+        self.assertEqual([t.id for t in p.tags.all()], [t.id])
+        self.assertEqual([p.id for p in t.posts.all()], [p.id])
+        p.tags.remove("tag_id=5")
+        self.assertEqual(p.tags.all(), [])
+        self.assertEqual(t.posts.all(), [])
 
     def test_mtom_count(self):
-        pass
-
-    def test_orderby(self):
-        pass
-
-    def test_like(self):
-        pass
+        p = Post.get(id=3)
+        self.assertEqual(p.tags.count(), 0)
+        p.tags.append(Tag.get(id=3))
+        p.tags.append(Tag.get(id=4))
+        self.assertEqual(p.tags.count(), 2)
 
 
 class TestBasicFunction(BaseTests):

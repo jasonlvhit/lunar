@@ -466,6 +466,17 @@ class SelectQuery(BaseQuery):
             [self.base_statement.strip(';'), ' like "%s";'])
         return self
 
+    def notlike(self, pattern):
+        """
+        test_database.Post.select('id').where('content').notlike('%cont%')
+        """
+        if 'where' not in self.base_statement:
+            raise QueryException("like query must have a where clause before.")
+        self.like_pattern = pattern or ''
+        self.base_statement = ''.join(
+            [self.base_statement.strip(';'), ' not like "%s";'])
+        return self
+
 
 class UpdateQuery(BaseQuery):
     """ update post set title = "new title", content = "new content"

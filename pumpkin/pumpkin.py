@@ -84,7 +84,7 @@ class _Stack(threading.local):
         return True if len(self._Stack) == 0 else False
 
     def __repr__(self):
-        return "_app_stack with %s applications" % (len(self))
+        return "app_stack with %s applications" % (len(self))
 
 
 class PumpkinException(Exception):
