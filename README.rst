@@ -22,6 +22,16 @@ lunar include a simple router, which provide the request routing, a template eng
 for template rendering, a simple wrapper for WSGI request and response, and a ORM framework 
 for sqlite.
 
+
+Install
+----------------
+
+::
+
+	pip install lunar
+
+
+
 Happy hacking.
 
 ::
