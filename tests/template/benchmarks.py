@@ -70,13 +70,57 @@ except ImportError:
 table = [dict(a=1,b=2,c=3,d=4,e=5,f=6,g=7,h=8,i=9,j=10)
           for x in range(1000)]
 
+try:
+    from jinja2 import Template as JinjaTemplate
+except ImportError:
+    JinjaTemplate = None
+
+try:
+    from tornado import template as TornadoTemplate
+except ImportError:
+    TornadoTemplate = None
+
+
+if TornadoTemplate:
+    tornado_tmpl = TornadoTemplate.Template("""
+<table>
+{% for row in table %}
+<tr>{% for col in row.values() %}
+    <td>{{ col }}<td/>
+    {% end %}
+</tr>{% end %}
+</table>""")
+
+    def test_tornado():
+        """Tornado Template"""
+        tornado_tmpl.generate(table=table)
+
+
+if JinjaTemplate:
+    jinja_tmpl = JinjaTemplate("""
+<table>
+{% for row in table %}
+<tr>{% for col in row.values() %}
+    <td>{{ col }}<td/>
+    {% endfor %}
+</tr>{% endfor %}
+</table>""")
+
+    def test_jinja2():
+        """Jinja2 template"""
+        jinja_tmpl.render(table=table)
+
+
 if LunarTemplate:
     lunar_tmpl = LunarTemplate.Template("""
 <table>
 {% for row in table %}
-<tr>{% for col in row.values() %}{{ col }}{% endfor %}</tr>
-{% endfor %}
+<tr>{% for col in row.values() %}
+    <td>{{ col }}<td/>
+    {% endfor %}
+</tr>{% endfor %}
 </table>""")
+
     def test_lunar():
         """Lunar template"""
         lunar_tmpl.render(table=table)
@@ -106,7 +150,7 @@ if DjangoTemplate:
     django_tmpl = DjangoTemplate("""
     <table>
     {% for row in table %}
-    <tr>{% for col in row.values %}{{ col|escape }}{% endfor %}</tr>
+    <tr>{% for col in row.values %}<td>{{ col|escape }}</td>{% endfor %}</tr>
     {% endfor %}
     </table>
     """)
@@ -131,7 +175,6 @@ if MakoTemplate:
     def test_mako():
         """Mako Template"""
         data = mako_tmpl.render(table=table)
-        #print "mako", len(data)
 
 if SpitfireTemplate:
     import spitfire.compiler.analyzer
@@ -216,8 +259,7 @@ if CheetahTemplate:
 
     def test_cheetah():
         """Cheetah template"""
-        data = cheetah_template(searchList=[{'table':table}]).respond()
-        #print "cheetah", len(data)
+        cheetah_template(searchList=[{'table':table}]).respond()
 
 if genshi:
     def test_genshi():
@@ -376,7 +418,9 @@ def run(which=None, number=10):
              'test_spitfire', 'test_spitfire_o1',
              'test_spitfire_o2', 'test_spitfire_o3', 'test_spitfire_o4',
              'test_python_stringio', 'test_python_cstringio', 'test_python_array',
-             'test_lunar'
+             'test_lunar',
+             'test_jinja2',
+             'test_tornado'
              ]
 
     if which:
