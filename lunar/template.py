@@ -141,6 +141,9 @@ class Template(object):
             self.co = self.parse().compile()
 
     def render(self, *args, **context):
+        for arg in args:
+            context.update(arg)
+
         if self.autoescape:
             for (k, v) in context.items():
                 if isinstance(v, str):
@@ -186,7 +189,8 @@ class Template(object):
             variable, endblock, end, statement, keyword, suffix = token.groups(
             )
             if suffix:
-                suffix = self.shave_dot(suffix)
+                #suffix = self.shave_dot(suffix)
+                pass
             if variable:
                 self.writer.write_var(variable, indent, in_block_top())
             elif endblock:
@@ -195,6 +199,7 @@ class Template(object):
                 indent -= 1
             elif keyword:
                 if keyword == "include":
+                    suffix = self.shave_dot(suffix)
                     c = Loader(self.path).load(suffix).r_co
                     self.writer.write_snippet(c, indent, in_block_top())
                     continue

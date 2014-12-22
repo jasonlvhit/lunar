@@ -23,12 +23,12 @@ for template rendering, a simple wrapper for WSGI request and response, and a OR
 for sqlite.
 
 
-Install
+Installation
 ----------------
 
 ::
 
-	pip install lunar
+	$ pip install lunar
 
 
 
