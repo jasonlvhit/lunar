@@ -19,6 +19,7 @@ Happy hacking.
 
 """
 
+import json
 import os
 import time
 import sys
@@ -181,6 +182,11 @@ class Lunar(object):
         except KeyboardInterrupt:
             pass
 
+    def jsonify(self, *args, **kwargs):
+        response = Response(body=json.dumps(dict(*args, **kwargs)), code=200)
+        response.set_content_type('application/json')
+        return response 
+        
     def render_template(self, file, **context):
         # print(self.loader.load(file).r_co)
         app_namespace = sys.modules[self.package_name].__dict__

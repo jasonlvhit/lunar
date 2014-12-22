@@ -2,20 +2,46 @@
     This benchmark compares some python templating engines with Jinja 2 so
     that we get a picture of how fast Jinja 2 is for a semi real world
     template.  If a template engine is not installed the test is skipped.\
+
+    Benchmark example from Jinja2, add Lunar template test.
+
+    A sample out base on my pc machine.
+
+    Linux Platform:
+    ----------------------------------
+    jinja               0.0052 seconds
+    mako                0.0052 seconds
+    tornado             0.0200 seconds
+    django              0.2643 seconds
+    genshi              0.1306 seconds
+    lunar               0.0301 seconds
+    cheetah             0.0256 seconds
+    ----------------------------------
+
+    Windows Platform:
+    ----------------------------------
+    ----------------------------------
+
+    jinja               0.0216 seconds
+    mako                0.0206 seconds
+    tornado             0.0286 seconds
+    lunar               0.0420 seconds
+    cheetah             0.1043 seconds
+    -----------------------------------
 """
 import sys
 import cgi
 from timeit import Timer
 from jinja2 import Environment as JinjaEnvironment
 
-from lunar import template as LunarTemplate
+from lunar.template import Template as LunarTemplate
 
 context = {
     'page_title': 'mitsuhiko\'s benchmark',
     'table': [dict(a=1,b=2,c=3,d=4,e=5,f=6,g=7,h=8,i=9,j=10) for x in range(1000)]
 }
 
-lunar_template = LunarTemplate.Template("""
+lunar_template = LunarTemplate("""
 <!doctype html>
 <html>
   <head>
@@ -450,7 +476,7 @@ sys.stdout.write('\r' + '\n'.join((
     '=' * 80,
     'Template Engine BigTable Benchmark'.center(80),
     '=' * 80,
-    __doc__,
+    "",
     '-' * 80
 )) + '\n')
 

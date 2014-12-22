@@ -3,7 +3,39 @@
 #
 # Objective: Generate a 1000x10 HTML table as fast as possible.
 #
-# Author: Jonas Borgström <jonas@edgewall.com>
+# Author: Jonas Borgstrm <jonas@edgewall.com>
+
+# Add Lunar and Jinja2 and Torando template engine benchmarks tests 
+# by Jason Lyu <jasonlvhit@gmail.com>
+#
+# A sample output base on my pc machine:
+# 
+# Linux Platform
+# -------------------------------------------------------
+# Genshi tag builder                            239.56 ms
+# Genshi template                               133.26 ms
+# Genshi template + tag builder                 261.40 ms
+# Mako Template                                  44.64 ms
+# Djange template                               335.10 ms
+# Cheetah template                               29.56 ms
+# StringIO                                       33.63 ms
+# cStringIO                                       7.68 ms
+# list concat                                     3.25 ms
+# Lunar template                                 23.46 ms
+# Jinja2 template                                 8.41 ms
+# Tornado Template                               24.01 ms
+# -------------------------------------------------------
+#
+# Windows Platform
+# -------------------------------------------------------
+# Mako Template                                 209.74 ms
+# Cheetah template                              103.80 ms
+# StringIO                                       42.96 ms
+# cStringIO                                      11.62 ms
+# list concat                                     4.22 ms
+# Lunar template                                 27.56 ms
+# Jinja2 template                                27.16 ms
+# -------------------------------------------------------
 
 import cgi
 import sys

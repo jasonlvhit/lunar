@@ -30,6 +30,7 @@ def test_escape():
 def test_url_for_with_args():
     return app.url_for(test_sync_args, id=1)
 
+
 @app.route('/url_for')
 def test_url_for():
     return app.url_for(index)
@@ -50,6 +51,7 @@ def show_session():
 def test_sync_args(id):
     return id
 
+
 @app.route('/test_post', methods=['GET', 'POST'])
 def test_post():
     if app.request.method == 'GET':
@@ -61,9 +63,15 @@ def test_post():
 def test_redirect():
     return app.redirect('/')
 
+
 @app.route('/redirect_with_args')
 def test_redirect_with_url():
     return app.redirect(app.url_for(test_sync_args, id=1))
+
+
+@app.route('/test_jsonify')
+def test_jsonify():
+    return app.jsonify(name='lunar')
 
 
 if __name__ == '__main__':
