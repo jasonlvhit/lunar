@@ -5,7 +5,10 @@ A template engine.
 import sys
 import re
 import os
+
 from functools import wraps
+
+from .util import html_escape
 
 if sys.version < '3':
     string_escape = 'string-escape'
@@ -147,7 +150,7 @@ class Template(object):
         if self.autoescape:
             for (k, v) in context.items():
                 if isinstance(v, str):
-                    context[k] = self.html_escape(v)
+                    context[k] = html_escape(v)
 
         context['_stdout'] = []
         exec(self.co, context)
@@ -222,10 +225,6 @@ class Template(object):
             else:
                 raise TemplateException('Template syntax error.')
         return self
-
-    def html_escape(self, s):
-        return s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')\
-                .replace('"', '&quot;').replace("'", '&#039;')
 
     @property
     def r_co(self):

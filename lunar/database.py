@@ -7,6 +7,7 @@ import sqlite3
 import sys
 import threading
 
+from .util import sqlite_escape
 
 encoding_type = sys.getfilesystemencoding()
 
@@ -138,7 +139,7 @@ class ManyToManyField(object):
     def _select(self):
         self_id, rel_id = self._get_rel_names()
         c = self.db.execute(
-            'select "%s" from %s where %s = "%s";' % (
+            'select %s from %s where %s = %s;' % (
                 rel_id, self.rel, self_id, self.id)
         )
         rs = c.fetchall()
@@ -174,7 +175,7 @@ class ManyToManyField(object):
         if not self.self_id:
             self.self_id, _ = self._get_rel_names()
         c = self.db.execute(
-            'delete from %s where %s = "%s" and %s;' % (
+            'delete from %s where %s = %s and %s;' % (
                 self.rel, self.self_id, self.id,
                 ' and '.join(list(args))
             ), commit=True
@@ -315,7 +316,7 @@ class Sqlite(Database):
             if isinstance(v, ManyToManyField) or isinstance(v, ForeignKeyReverseField):
                 continue
             cofk.append(k)
-            cofv.append('"' + str(v) + '"')
+            cofv.append('\'' + sqlite_escape(str(v)) + '\'')
 
         cursor = self.conn.cursor()
         cursor.execute(
