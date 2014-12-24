@@ -13,4 +13,4 @@ class MyRenderer(mistune.Renderer):
         return highlight(code, lexer, formatter)
 
 renderer = MyRenderer()
-md_renderer = mistune.Markdown(renderer=renderer)
+md_renderer = mistune.Markdown(renderer=renderer, escape=True)
