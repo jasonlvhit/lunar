@@ -1,6 +1,7 @@
 from datetime import datetime
 from . import app, db
 from .models import Comment, Post, Tag
+from .renderer import md_renderer
 
 @app.route('/')
 def index():
@@ -37,6 +38,7 @@ def create_post():
 @app.route('/post/<int:id>')
 def show_post(id):
     p = Post.get(id=id)
+    p.content = md_renderer.render(p.content)
     return app.render_template('post.html', post=p)
 
 @app.route('/tag/<int:id>')
