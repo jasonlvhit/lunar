@@ -2,13 +2,14 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="{{ app.url_for('static', 'style.css') }}" />
+    <link rel="stylesheet" href="{{ app.url_for('static', 'post.css') }}" />
+	<link rel="stylesheet" href="{{ app.url_for('static', 'pygments.css') }}" />
     <title>{{ post.title }}</title>
 </head>
 <body>
-	<div class="post-main">
-	    <h3>{{ post.title }}</h3>
-    	<pre>{{ post.pub_date }}</pre>
+	<div class="post-main content">
+	    <h2 id="title">{{ post.title }}</h2>
+    	<p>{{ post.pub_date }}</p>
     	<p>{{ post.content }}</p>
     
 
