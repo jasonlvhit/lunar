@@ -8,7 +8,7 @@ class Post_Tag_Re(db.Model):
 
     def __repr__(self):
         return '<Relation table post_id = %s, tag_id = %s>' %(
-            post_id, tag_id
+            self.post_id, self.tag_id
             )
 
 
