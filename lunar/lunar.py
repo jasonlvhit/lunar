@@ -127,6 +127,8 @@ class Lunar(object):
 
         # static file
         self.static_folder = static
+        self.abspath = None
+        self.modified = None
         self.static_url_cache = {}
 
         # session
@@ -259,40 +261,57 @@ class Lunar(object):
     def response(self):
         return self._response
 
-    def handle_static(self, path):
-        response = Response(None)
-
-        # This is the path of a static file on the filesystem
-        path = self.root_path + path
-
-        if not os.path.exists(path) or not os.path.isfile(path):
-            return self.not_found()
-
-        mimetype = 'text/plain'
-        guess_type = mimetypes.guess_type(path)[0]
-        if guess_type:
-            response.set_content_type(guess_type)
+    def get_content_type(self):
+        fallback_content_type = 'text/plain'
+        mime_type = mimetypes.guess_type(self.abspath)[0]
+        if mime_type:
+            return mime_type
         else:
-            response.set_content_type(mimetype)
+            return fallback_content_type
 
-        stats = os.stat(path)
+    def get_modified_time(self):
+        stats = os.stat(self.abspath)
 
         last_modified_time = time.gmtime(stats.st_mtime)
-        last_modified_str = time.strftime(
-            "%a, %d %b %Y %H:%M:%S UTC", last_modified_time)
+        return last_modified_time
 
-        # Handle If-Modified-Since
+    def should_return_304(self):
         if_modified_since_str = self._request.if_modified_since
         if if_modified_since_str:
             if_modified_since_time = time.strptime(
                 if_modified_since_str, "%a, %d %b %Y %H:%M:%S %Z")
-            if if_modified_since_time >= last_modified_time:
-                return self.not_modified()
+            if if_modified_since_time >= self.modified:
+                return True
+        return False
+
+    def is_static_file_request(self):
+        if self._request.path is not None and self._request.path.lstrip('/').startswith(self.static_folder):
+            return True
+        return False
+
+    def handle_static(self, path):
+        response = Response(None)
+
+        # This is the absolute path of a static file on the filesystem
+        self.abspath = self.root_path + path
+
+        if not os.path.exists(self.abspath) or not os.path.isfile(self.abspath):
+            return self.not_found()
+
+        content_type = self.get_content_type()
+        response.set_content_type(content_type)
+
+        self.modified = self.get_modified_time()
+
+        if self.should_return_304():
+            return self.not_modified()
 
         if 'Last-Modified' not in response.headers.keys():
+            last_modified_str = time.strftime(
+                "%a, %d %b %Y %H:%M:%S UTC", self.modified)
             response.headers['Last-Modified'] = last_modified_str
 
-        with open(path, 'r') as f:
+        with open(self.abspath, 'r') as f:
             response.set_body(body=(f.read()))
         return response
 
@@ -318,7 +337,7 @@ class Lunar(object):
         self._request.bind(environ)
         r = None
         # Static files
-        if self._request.path is not None and self._request.path.lstrip('/').startswith(self.static_folder):
+        if self.is_static_file_request():
             r = self.handle_static(self._request.path)
         else:
             try:
