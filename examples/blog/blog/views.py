@@ -6,7 +6,7 @@ from .renderer import md_renderer
 @app.route('/')
 def index():
     posts = Post.select().all()
-    return app.render_template('index.html', posts=posts)
+    return app.render('index.html', posts=posts)
 
 
 def tag_filter(tags):
@@ -23,7 +23,7 @@ def tag_filter(tags):
 @app.route('/new_post', methods=['POST', 'GET'])
 def create_post():
     if app.request.method == 'GET':
-        return app.render_template("editor.html")
+        return app.render("editor.html")
 
     title = app.request.forms['title']
     tags = tag_filter(app.request.forms['tag'])
@@ -39,12 +39,12 @@ def create_post():
 def show_post(id):
     p = Post.get(id=id)
     p.content = md_renderer.render(p.content)
-    return app.render_template('post.html', post=p)
+    return app.render('post.html', post=p)
 
 @app.route('/tag/<int:id>')
 def show_tag(id):
     t = Tag.get(id=id)
-    return app.render_template('tag.html', tag=t)
+    return app.render('tag.html', tag=t)
 
 @app.route('/new_comment', methods=['POST'])
 def create_comment():

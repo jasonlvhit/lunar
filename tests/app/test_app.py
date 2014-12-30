@@ -40,7 +40,7 @@ def args():
 @app.route('/test_post', methods=['GET', 'POST'])
 def post():
     if app.request.method == 'GET':
-        return app.render_template('test_post.html')
+        return app.render('test_post.html')
     return app.request.forms["title"], app.request.forms["tag"]
 
 @app.route('/show/<int:id>')
@@ -50,7 +50,7 @@ def sync_args(id):
 # template
 @app.route('/template')
 def template():
-    return app.render_template('index.html')
+    return app.render('index.html')
 
 
 @app.route('/url_for_with_args')

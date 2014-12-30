@@ -192,7 +192,7 @@ class Lunar(object):
         response.set_content_type('application/json')
         return response 
         
-    def render_template(self, file, **context):
+    def render(self, file, **context):
         # print(self.loader.load(file).r_co)
         app_namespace = sys.modules[self.package_name].__dict__
         context.update(globals())

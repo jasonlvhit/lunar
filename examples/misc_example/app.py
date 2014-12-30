@@ -18,12 +18,12 @@ def test_args():
 
 @app.route('/template')
 def template():
-    return app.render_template('index.html')
+    return app.render('index.html')
 
 
 @app.route('/template_with_noescape')
 def test_escape():
-    return app.render_template('test_escape.html', content="<p>hello escape</p>")
+    return app.render('test_escape.html', content="<p>hello escape</p>")
 
 
 @app.route('/url_for_with_args')
@@ -55,7 +55,7 @@ def test_sync_args(id):
 @app.route('/test_post', methods=['GET', 'POST'])
 def test_post():
     if app.request.method == 'GET':
-        return app.render_template('test_post.html')
+        return app.render('test_post.html')
     return app.request.forms["title"], app.request.forms["tag"]
 
 
