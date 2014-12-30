@@ -9,8 +9,8 @@ import threading
 
 from .util import sqlite_escape
 
-encoding_type = sys.getfilesystemencoding()
-
+#encoding_type = sys.getfilesystemencoding()
+encoding_type = 'utf8'
 
 def u(r):
     def f(x):
