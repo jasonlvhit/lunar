@@ -33,6 +33,7 @@ if sys.version < '3':
     from Queue import Queue
     from urllib import quote
     import sys
+
     reload(sys)
     sys.setdefaultencoding('utf8')
 else:
@@ -41,6 +42,7 @@ else:
 
 try:
     import pkg_resources
+
     pkg_resources.resource_stream
 except (ImportError, AttributeError):
     pkg_resources = None
@@ -57,7 +59,6 @@ The Main object of lunar.
 
 
 class _Stack(threading.local):
-
     def __init__(self):
         self._Stack = []
 
@@ -87,7 +88,6 @@ class _Stack(threading.local):
 
 
 class LunarException(Exception):
-
     def __init__(self, code, response, server_handler, DEBUG=False):
         self._DEBUG = DEBUG
         self._response = response
@@ -105,7 +105,6 @@ class LunarException(Exception):
 
 
 class Lunar(object):
-
     """Main object of this funny web frameWork
     """
 
@@ -167,6 +166,7 @@ class Lunar(object):
         def wrapper(fn):
             self._router.register(path, fn, methods)
             return fn
+
         return wrapper
 
     @property
@@ -190,8 +190,8 @@ class Lunar(object):
     def jsonify(self, *args, **kwargs):
         response = Response(body=json.dumps(dict(*args, **kwargs)), code=200)
         response.set_content_type('application/json')
-        return response 
-        
+        return response
+
     def render(self, file, **context):
         # print(self.loader.load(file).r_co)
         app_namespace = sys.modules[self.package_name].__dict__
@@ -206,7 +206,7 @@ class Lunar(object):
     def not_modified(self):
         response = Response('', code=304)
         # We don't need Content-Type here.
-        del(response.headers['Content-Type'])
+        del (response.headers['Content-Type'])
         return response
 
     def redirect(self, location, code=302):
@@ -285,9 +285,7 @@ class Lunar(object):
         return False
 
     def is_static_file_request(self):
-        if self._request.path is not None and self._request.path.lstrip('/').startswith(self.static_folder):
-            return True
-        return False
+        return self._request.path.lstrip('/').startswith(self.static_folder)
 
     def handle_static(self, path):
         response = Response(None)
@@ -319,7 +317,7 @@ class Lunar(object):
         try:
             handler, args = self._router.get(
                 self._request.path, self._request.method)
-        # 404
+        # No handler is found, we assume it's a 404.
         except TypeError:
             return self.not_found()
 
@@ -335,15 +333,14 @@ class Lunar(object):
         self._server_handler = start_response
         # start_response.im_self._flush()
         self._request.bind(environ)
-        r = None
-        # Static files
+
         if self.is_static_file_request():
             r = self.handle_static(self._request.path)
         else:
             try:
                 r = self.handle_router()
             # 500
-            except Exception as e:
+            except Exception:
                 return LunarException(500, self._response, self._server_handler, self.DEBUG)()
 
         # Static files, 302, 304 and 404

@@ -55,7 +55,7 @@ def template():
 
 @app.route('/url_for_with_args')
 def url_for_with_args():
-    return app.url_for(test_sync_args, id=1)
+    return app.url_for(sync_args, id=1)
 
 
 @app.route('/url_for_normal_func')
@@ -78,6 +78,10 @@ def push_session():
 def show_session():
     return app.session['lunar'].value
 
+
+@app.route('/json')
+def json_request():
+    return app.jsonify({"BJ": "Beijing"})
 
 @app.route('/test_redirect')
 def redirect():
@@ -180,6 +184,16 @@ class AppTest(unittest.TestCase):
         r = app(env, start_response)
         self.assertEqual(app.url_for('static', 'style.css'),
                          'https://www.example.com:400/static/style.css')
+
+    def test_json_request(self):
+        env = {
+            'HTTP_HOST': 'localhost',
+            'wsgi.url_scheme': 'http',
+            'SERVER_PORT': '80',
+            'PATH_INFO': '/json'
+        }
+        r = app(env, start_response)
+        self.assertEqual(app._response.get_content_type(), 'application/json')
 
     def test_not_found(self):
         env = {
