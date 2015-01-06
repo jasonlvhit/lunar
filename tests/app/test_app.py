@@ -15,8 +15,10 @@ else:
 from lunar.lunar import Lunar, LunarException, _Stack
 from lunar.router import RouterException
 
+
 def start_response(status, headerlist):
     pass
+
 
 class SimpleClass(object):
     pass
@@ -32,6 +34,8 @@ def index():
     return "Hello, lunar!"
 
 #/args?key=lunar&count=4
+
+
 @app.route('/test_args', methods=["GET"])
 def args():
     return app.request.args["key"], app.request.args["count"]
@@ -43,11 +47,14 @@ def post():
         return app.render('test_post.html')
     return app.request.forms["title"], app.request.forms["tag"]
 
+
 @app.route('/show/<int:id>')
 def sync_args(id):
     return id
 
 # template
+
+
 @app.route('/template')
 def template():
     return app.render('index.html')
@@ -83,6 +90,7 @@ def show_session():
 def json_request():
     return app.jsonify({"BJ": "Beijing"})
 
+
 @app.route('/test_redirect')
 def redirect():
     return app.redirect('/')
@@ -91,6 +99,7 @@ def redirect():
 @app.route('/redirect_with_args')
 def redirect_with_url():
     return app.redirect(app.url_for(test_sync_args, id=1))
+
 
 @app.route('/test_handler_exception')
 def handler_exception():
@@ -121,6 +130,7 @@ class StackTest(unittest.TestCase):
         self.stack.push(1)
         self.assertFalse(self.stack.empty())
 
+
 class AppTest(unittest.TestCase):
 
     def tearDown(self):
@@ -141,10 +151,10 @@ class AppTest(unittest.TestCase):
         r = app(env, start_response)
         url = app.url_for('static', 'style.css')
         self.assertEqual(
-            app.static_url_cache, {'style.css':'http://localhost/static/style.css'})
+            app.static_url_cache, {'style.css': 'http://localhost/static/style.css'})
         self.assertEqual(
             app.url_for('static', 'style.css'), 'http://localhost/static/style.css')
-            
+
     def test_static_url_for_with_http_standard_port(self):
         env = {
             'HTTP_HOST': 'localhost',
@@ -226,7 +236,7 @@ class AppTest(unittest.TestCase):
         r = app(env, start_response)
         last_modified_str = app._response.headers['Last-Modified']
         last_modified_time = time.strptime(
-                last_modified_str, "%a, %d %b %Y %H:%M:%S %Z")
+            last_modified_str, "%a, %d %b %Y %H:%M:%S %Z")
 
         a_year_after = time.strftime(
             "%a, %d %b %Y %H:%M:%S UTC", last_modified_time)
@@ -236,7 +246,7 @@ class AppTest(unittest.TestCase):
             'wsgi.url_scheme': 'http',
             'SERVER_PORT': '80',
             'PATH_INFO': '/static/style.css',
-            'HTTP_IF_MODIFIED_SINCE':a_year_after
+            'HTTP_IF_MODIFIED_SINCE': a_year_after
         }
         r = app(env, start_response)
         self.assertEqual(app._response.status, '304 Not Modified')
@@ -270,7 +280,7 @@ class AppTest(unittest.TestCase):
             'SERVER_PORT': '80',
             'PATH_INFO': '/test_args',
             'wsgi.input': StringIO(b'title=test&tag=python'),
-            'REQUEST_METHOD':'POST'
+            'REQUEST_METHOD': 'POST'
         }
         r = app(env, start_response)
         self.assertEqual(app._request.forms['title'], 'test')

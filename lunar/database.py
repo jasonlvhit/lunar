@@ -12,6 +12,7 @@ from .util import sqlite_escape
 #encoding_type = sys.getfilesystemencoding()
 encoding_type = 'utf8'
 
+
 def u(r):
     def f(x):
         if sys.version < '3' and isinstance(x, unicode):
@@ -30,12 +31,14 @@ class Field(object):
 
 
 class IntegerField(Field):
+
     @property
     def sql(self):
         return '"%s" %s' % (self.name, "INTEGER")
 
 
 class CharField(Field):
+
     def __init__(self, max_length=255):
         self.max_length = max_length
 
@@ -45,30 +48,35 @@ class CharField(Field):
 
 
 class TextField(Field):
+
     @property
     def sql(self):
         return '"%s" %s' % (self.name, "TEXT")
 
 
 class RealField(Field):
+
     @property
     def sql(self):
         return '"%s" %s' % (self.name, "REAL")
 
 
 class DateField(Field):
+
     @property
     def sql(self):
         return '"%s" %s' % (self.name, "DATETIME")
 
 
 class PrimaryKeyField(IntegerField):
+
     @property
     def sql(self):
         return '"%s" %s NOT NULL PRIMARY KEY' % (self.name, "INTEGER")
 
 
 class ForeignKeyField(IntegerField):
+
     def __init__(self, to_table):
         self.to_table = to_table
 
@@ -80,6 +88,7 @@ class ForeignKeyField(IntegerField):
 
 
 class ForeignKeyReverseField(object):
+
     def __init__(self, from_table):
         self.from_table = from_table
         self.name = None
@@ -106,6 +115,7 @@ class ForeignKeyReverseField(object):
 
 
 class ManyToManyField(object):
+
     def __init__(self, rel=None, to_table=None):
         if not rel or not to_table:
             raise DatabaseException(
@@ -187,6 +197,7 @@ class ManyToManyField(object):
 
 
 class MetaModel(type):
+
     def __new__(cls, name, bases, attrs):
         cls = super(MetaModel, cls).__new__(cls, name, bases, attrs)
         # fields
@@ -224,6 +235,7 @@ class MetaModel(type):
 
 
 class Model(MetaModel('NewBase', (object, ), {})):
+
     def __init__(self, **kwargs):
         max_id = self.select('id').max()
         if not max_id:
@@ -269,6 +281,7 @@ class DatabaseException(Exception):
 
 
 class Sqlite(Database):
+
     def __init__(self, database):
         self.database = database
         self.conn = sqlite3.connect(
@@ -355,6 +368,7 @@ class QueryException(DatabaseException):
 
 
 class SelectQuery(BaseQuery):
+
     """ select title, content from post where id = 1 and title = "my title";
         select title, content from post where id > 3;
     """
@@ -471,6 +485,7 @@ class SelectQuery(BaseQuery):
 
 
 class UpdateQuery(BaseQuery):
+
     """ update post set title = "new title", content = "new content"
         where id = 1;
     """
@@ -504,6 +519,7 @@ class UpdateQuery(BaseQuery):
 
 
 class DeleteQuery(BaseQuery):
+
     def __init__(self, klass, *args, **kwargs):
         self.base_statement = 'delete from %s;'
         self.c = None

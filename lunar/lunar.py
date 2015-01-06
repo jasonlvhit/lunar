@@ -59,6 +59,7 @@ The Main object of lunar.
 
 
 class _Stack(threading.local):
+
     def __init__(self):
         self._Stack = []
 
@@ -88,6 +89,7 @@ class _Stack(threading.local):
 
 
 class LunarException(Exception):
+
     def __init__(self, code, response, server_handler, DEBUG=False):
         self._DEBUG = DEBUG
         self._response = response
@@ -105,6 +107,7 @@ class LunarException(Exception):
 
 
 class Lunar(object):
+
     """Main object of this funny web frameWork
     """
 

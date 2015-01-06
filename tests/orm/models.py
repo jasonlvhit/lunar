@@ -1,7 +1,9 @@
 from . import db
 from lunar import database
 
+
 class Post_Tag_Re(db.Model):
+
     """
     Many to many relationship test.
     """
@@ -10,9 +12,9 @@ class Post_Tag_Re(db.Model):
     tag_id = database.ForeignKeyField('tag')
 
     def __repr__(self):
-        return '<Relation table post_id = %s, tag_id = %s>' %(
+        return '<Relation table post_id = %s, tag_id = %s>' % (
             self.post_id, self.tag_id
-            )
+        )
 
 
 class Post(db.Model):
@@ -39,12 +41,13 @@ class Author(db.Model):
     def __repr__(self):
         return '<Author %s>' % self.name
 
+
 class Tag(db.Model):
     id = database.PrimaryKeyField()
     name = database.CharField(100)
 
-    posts = database.ManyToManyField(rel='post_tag_re', to_table='self_define_post')
+    posts = database.ManyToManyField(
+        rel='post_tag_re', to_table='self_define_post')
 
     def __repr__(self):
         return '<Tag %s>' % self.name
-
