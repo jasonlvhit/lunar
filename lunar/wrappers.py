@@ -176,7 +176,7 @@ class Response(BaseObject):
 
     def set_body(self, body):
         self._body = str(body)
-        # Python 3 Bytes hack
+        # Python 3 bytes hack
         if sys.version > '3':
             self._body = bytes(self._body, 'utf-8')
 

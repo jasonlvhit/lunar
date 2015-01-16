@@ -196,7 +196,6 @@ class Lunar(object):
         return response
 
     def render(self, file, **context):
-        # print(self.loader.load(file).r_co)
         app_namespace = sys.modules[self.package_name].__dict__
         context.update(globals())
         context.update(app_namespace)
@@ -218,18 +217,17 @@ class Lunar(object):
         return response
 
     def url_for(self, fn, filename=None, **kwargs):
-        # Static file URL like these:
-        # <link type="text/css" rel="stylesheet" href="{{ app.url_for('static', 'style.css') }}" />
-        # <link type="text/css" rel="stylesheet" href="{{ app.url_for('static', 'css/style.css') }}" />
+        # URLs for static files are constructed according to
+        # current wsgi environ(HTTP_HOST, SERVER_NAME, etc.)
         if fn == self.static_folder and filename:
             if filename in self.static_url_cache.keys():
                 return self.static_url_cache[filename]
             else:
                 url = self.construct_url(filename)
-                # Cache the url
+                # Cache the URL
                 self.static_url_cache[filename] = url
                 return url
-        # Router function URL
+        # Router function URLs are given by the router.
         if kwargs:
             return self._router.url_for(fn, **kwargs)
         return self._router.url_for(fn)
@@ -334,7 +332,6 @@ class Lunar(object):
         self._response = Response(None)
         self._request = Request(None)
         self._server_handler = start_response
-        # start_response.im_self._flush()
         self._request.bind(environ)
 
         if self.is_static_file_request():
@@ -342,7 +339,6 @@ class Lunar(object):
         else:
             try:
                 r = self.handle_router()
-            # 500
             except Exception:
                 return LunarException(500, self._response, self._server_handler, self.DEBUG)()
 
