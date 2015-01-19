@@ -493,6 +493,7 @@ class UpdateQuery(BaseQuery):
         self.klass = klass
         self.base_statement = "update %s set %s;"
         self.where = None
+        self.update_value = None
         if args != ((),) or kwargs:
             c = ['%s = "%s"' % (k, str(v)) for k, v in kwargs.items()]
             if args != ((),):
