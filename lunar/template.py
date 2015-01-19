@@ -191,9 +191,6 @@ class Template(object):
 
             variable, endblock, end, statement, keyword, suffix = token.groups(
             )
-            if suffix:
-                #suffix = self.shave_dot(suffix)
-                pass
             if variable:
                 self.writer.write_var(variable, indent, in_block_top())
             elif endblock:

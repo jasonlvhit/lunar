@@ -30,14 +30,12 @@ import mimetypes
 from functools import wraps
 
 if sys.version < '3':
-    from Queue import Queue
     from urllib import quote
     import sys
 
     reload(sys)
     sys.setdefaultencoding('utf8')
 else:
-    from queue import Queue
     from urllib.parse import quote
 
 try:
@@ -136,8 +134,7 @@ class Lunar(object):
         # session
         self._session = self._request.cookies
 
-        # request_queue
-        self._req_arg_queue = Queue()
+        # server handler
         self._server_handler = None
 
         # debug
