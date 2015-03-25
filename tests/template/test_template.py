@@ -129,15 +129,15 @@ class BaseTests(unittest.TestCase):
             "{{ a.get('hello') }}").render(a={'hello': 'lunar'})
         self.assertEqual(rendered, 'lunar')
 
-    def test_escape(self):
-        rendered = Template("{{ content }}").render(
-            content="<p>hello escape</p>")
-        self.assertEqual(rendered, '&lt;p&gt;hello escape&lt;/p&gt;')
+    #def test_escape(self):
+    #    rendered = Template("{{ content }}").render(
+    #        content="<p>hello escape</p>")
+    #    self.assertEqual(rendered, '&lt;p&gt;hello escape&lt;/p&gt;')
 
-    def test_not_escape(self):
-        rendered = Template("{{ content }}", autoescape=False).render(
-            content="<p>hello escape</p>")
-        self.assertEqual(rendered, '<p>hello escape</p>')
+    #def test_not_escape(self):
+    #    rendered = Template("{{ content }}", autoescape=False).render(
+    #        content="<p>hello escape</p>")
+    #    self.assertEqual(rendered, '<p>hello escape</p>')
 
 class FunctionTest(unittest.TestCase):
 
