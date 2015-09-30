@@ -4,14 +4,7 @@ import threading
 
 from collections import MutableMapping
 
-if sys.version < '3':
-    import httplib
-    from Cookie import SimpleCookie
-    from urlparse import parse_qs
-else:
-    import http.client as httplib
-    from http.cookies import SimpleCookie
-    from urllib.parse import parse_qs
+from ._compat import httplib, SimpleCookie, parse_qs
 
 """
 A simple wrapper for base WSGI request and response.

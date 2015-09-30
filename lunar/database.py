@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """ A lightweight orm framework for sqlite.
-    
+
 """
 import copy
 import sqlite3
@@ -319,7 +319,7 @@ class Sqlite(Database):
         self.commit()
 
     def add(self, instance):
-        """ insert into post(title, content, pub_date) 
+        """ insert into post(title, content, pub_date)
                 values ("title", "content", datetime.datetime.now())
         """
         cofk = []

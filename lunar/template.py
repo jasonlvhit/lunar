@@ -94,11 +94,7 @@ _DEFAULT_CACHECAPACITY = 128
 # statement of Python code
 _DEFAULT_STDOUT = "_stdout"
 
-if sys.version < '3':
-    string_escape = "string-escape"
-else:
-    string_escape = "unicode_escape"
-
+from ._compat import string_escape
 
 class Scanner(object):
 

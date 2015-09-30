@@ -2,11 +2,8 @@ import sys
 import re
 
 import lunar
-if sys.version < '3':
-    from urlparse import parse_qs
-else:
-    from urllib.parse import parse_qs
 
+from ._compat import parse_qs
 
 class RouterException(Exception):
     pass
@@ -29,9 +26,14 @@ class Router(object):
         # weird in python 3.3: get nothing to repeat error in python 3
         # http://stackoverflow.com/questions/3675144/regex-error-nothing-to-repeat
         self.url_pattern = re.compile(
-            ''' (?P<static>([:\\\\/\w\d]*)\\.(\\w+)) #static
+            r'''(?P<static>([:\\/\w\d]*)\.(\w+)) #static
                 |
-                (?P<prefix>(/\\w*)+)(?P<suffix><(?P<type>\\w*)?:(?P<arg>\\w*)>)?
+                (?P<prefix>(/\w*)+)(?P<suffix>
+                <
+                    (?P<type>\w*)?
+                    :
+                    (?P<arg>\w*)
+                >)?
             ''', re.VERBOSE
         )
 
