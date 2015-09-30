@@ -1,6 +1,9 @@
 lunar
 ========
 
+.. image:: https://travis-ci.org/jasonlvhit/lunar.svg?branch=master
+    :target: https://travis-ci.org/jasonlvhit/lunar
+	
 A WSGI based webframework.
 
 .. image:: https://cloud.githubusercontent.com/assets/5202391/5469319/20677e82-8615-11e4-9aed-7773f47f7aea.jpg
