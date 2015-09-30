@@ -274,7 +274,9 @@ class Writer(object):
         self.blocks.setdefault(name, [])
 
     def generate(self, nodes=None):
-        (node.generate(self) for node in nodes)
+        for node in nodes:
+            if isinstance(node, BaseNode):
+                node.generate(self)
 
 
 class TemplateException(Exception):
@@ -299,8 +301,8 @@ class Template(object):
     and be serious, and I am very serious too.
 
     """
-    operator = ['if', 'try', 'while', 'for']
-    intermediate = ['else', 'elif', 'except', 'finally']
+    leading_keyword = ['if', 'try', 'while', 'for']
+    intermediate_keyword = ['else', 'elif', 'except', 'finally']
 
     def __init__(self, source, path=None, escape_option=None):
 
@@ -393,11 +395,12 @@ class Template(object):
                     self.writer.update_namespace(suffix)
                     in_block.append(suffix)
                     continue
-                elif keyword not in (self.intermediate + self.operator):
+                elif keyword not in (self.intermediate_keyword + self.leading_keyword):
+                    # perhaps unknown keyword?
                     self.nodes.append(KeyNode(
                         ' '.join([keyword, suffix]), indent, in_block_top()))
                     continue
-                if keyword in self.intermediate:
+                if keyword in self.intermediate_keyword:
                     indent -= 1
                 self.nodes.append(KeyNode(
                     ' '.join([keyword, suffix, ':']), indent, in_block_top()))
