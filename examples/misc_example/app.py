@@ -1,4 +1,4 @@
-from lunar.lunar import Lunar
+from lunar import Lunar
 
 app = Lunar('__main__')
 
