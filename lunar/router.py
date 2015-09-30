@@ -1,8 +1,6 @@
 import sys
 import re
 
-import lunar
-
 from ._compat import parse_qs
 
 class RouterException(Exception):
