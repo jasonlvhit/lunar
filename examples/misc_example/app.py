@@ -56,7 +56,7 @@ def test_sync_args(id):
 def test_post():
     if app.request.method == 'GET':
         return app.render('test_post.html')
-    return app.request.forms["title"], app.request.forms["tag"]
+    return app.request.form["title"], app.request.form["tag"]
 
 
 @app.route('/test_redirect')

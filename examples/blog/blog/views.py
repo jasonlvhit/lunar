@@ -25,9 +25,9 @@ def create_post():
     if app.request.method == 'GET':
         return app.render("editor.html")
 
-    title = app.request.forms['title']
-    tags = tag_filter(app.request.forms['tag'])
-    content = app.request.forms['editor']
+    title = app.request.form['title']
+    tags = tag_filter(app.request.form['tag'])
+    content = app.request.form['editor']
     post = Post(title=title, content=content, pub_date=datetime.now())
     db.add(post)
     db.commit()
@@ -48,12 +48,10 @@ def show_tag(id):
 
 @app.route('/new_comment', methods=['POST'])
 def create_comment():
-    post_id = app.request.forms['post_id']
-    title = app.request.forms['title']
-    content = app.request.forms['content']
+    post_id = app.request.form['post_id']
+    title = app.request.form['title']
+    content = app.request.form['content']
     comment = Comment(title=title, content=content, pub_date=datetime.now(), post_id=post_id)
     db.add(comment)
     db.commit()
     return app.redirect(app.url_for(show_post, id=post_id))
-
-
