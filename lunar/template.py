@@ -74,7 +74,6 @@
     Hacking with fun and joy.
 
 """
-import collections
 import os
 import re
 import sys
@@ -95,7 +94,7 @@ _DEFAULT_CACHECAPACITY = 128
 _DEFAULT_STDOUT = "_stdout"
 
 from ._compat import string_escape
-from .util import _Stack
+from .util import _Stack, LRUCache
 
 class Scanner(object):
 
@@ -433,40 +432,6 @@ class Template(object):
                 _t = _t.replace(
                     g.group(), ''.join(self.writer.blocks[g.group('name')]))
         return compile(_t, '<string>', 'exec')
-
-
-class LRUCache(object):
-
-    """ Simple LRU cache for template instance caching.
-
-        in fact, the OrderedDict in collections module or
-        @functools.lru_cache is working well too.
-
-    """
-
-    def __init__(self, capacity=_DEFAULT_CACHECAPACITY):
-        self.capacity = capacity
-        self.cache = collections.OrderedDict()
-
-    def get(self, key):
-        """ Return -1 if catched KeyError exception.
-
-        """
-        try:
-            value = self.cache.pop(key)
-            self.cache[key] = value
-            return value
-        except KeyError:
-            return -1
-
-    def set(self, key, value):
-        try:
-            self.cache.pop(key)
-        except KeyError:
-            if len(self.cache) >= self.capacity:
-                self.cache.popitem(last=False)
-        self.cache[key] = value
-
 
 
 class Loader(object):
