@@ -55,15 +55,15 @@ from .util import _Stack
 
 class LunarException(Exception):
 
-    def __init__(self, code, response, server_handler, DEBUG=False):
-        self._DEBUG = DEBUG
+    def __init__(self, code, response, server_handler, debug=False):
+        self._debug = debug
         self._response = response
         self._response.set_status(code)
         self._server_handler = server_handler
 
     def __call__(self):
         body = self._response.status
-        if self._DEBUG:
+        if self._debug:
             body = '<br>'.join(
                 [self._response.status, traceback.format_exc().replace('\n', '<br>')])
         self._response.set_body(body)
@@ -109,7 +109,7 @@ class Lunar(object):
         self._server_handler = None
 
         # debug
-        self.DEBUG = False
+        self.debug = False
 
         # config
         self.config = {}
@@ -144,8 +144,8 @@ class Lunar(object):
     def session(self):
         return self._session
 
-    def run(self, server=WSGIRefServer, host='localhost', port=8000, DEBUG=False):
-        self.DEBUG = DEBUG
+    def run(self, server=WSGIRefServer, host='localhost', port=8000, debug=False):
+        self.debug = debug
         if isinstance(server, type) and issubclass(server, ServerAdapter):
             server = server(host=host, port=port)
 
@@ -308,7 +308,7 @@ class Lunar(object):
             try:
                 r = self.handle_router()
             except Exception:
-                return LunarException(500, self._response, self._server_handler, self.DEBUG)()
+                return LunarException(500, self._response, self._server_handler, self.debug)()
 
         # Static files, 302, 304 and 404
         if isinstance(r, Response):
