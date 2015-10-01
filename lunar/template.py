@@ -364,7 +364,7 @@ class Template(object):
                 # indent = indent - 1 at the same time.
                 if end == 'block' and in_block_stack.empty():
                     raise TemplateException("Invalid endblock tag.")
-                if end == 'block' and not ((_ext is None) != (self.parents is None)):
+                if end == 'block':
                     in_block_stack.pop()
                 indent -= 1
             elif keyword:
@@ -390,7 +390,7 @@ class Template(object):
                 elif keyword not in (self.intermediate_keyword + self.leading_keyword):
                     # perhaps unknown keyword?
                     self.nodes.append(KeyNode(
-                        ' '.join([keyword, suffix]), indent, in_block_stack.top()))
+                        ' '.join([keyword, suffix]), indent, in_block_stack.top())) # pragma: no cover
                     continue
                 if keyword in self.intermediate_keyword:
                     indent -= 1
@@ -398,7 +398,7 @@ class Template(object):
                     ' '.join([keyword, suffix, ':']), indent, in_block_stack.top()))
                 indent += 1
             else:
-                raise TemplateException('Template syntax error.')
+                raise TemplateException('Template syntax error.') # pragma: no cover
 
         if not in_block_stack.empty():
             raise TemplateException("Unmatched block")

@@ -167,6 +167,9 @@ class SubtemplateTest(unittest.TestCase):
     def test_invalid_endblock(self):
         self.failUnlessRaises(TemplateException, Template, 'Hello {% endblock %}')
 
+    def test_extend_no_path(self):
+        self.failUnlessRaises(TemplateException, Template, """{% extends 'layout.html' %}{% block head %}Hello{% endblock %}'""")
+
     def test_extends(self):
         rendered = Loader(os.path.dirname(os.path.realpath(__file__))).load(
             'test_extends.html').render(title='lunar')
