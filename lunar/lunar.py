@@ -80,7 +80,7 @@ class Lunar(object):
     """Main object of this funny web frameWork
     """
 
-    def __init__(self, pkg_name, template='template', static='static'):
+    def __init__(self, pkg_name, templates='templates', static='static'):
         # router
         self._router = Router()
 
@@ -94,7 +94,7 @@ class Lunar(object):
         self.root_path = self._get_package_path(
             self.package_name).replace('\\', '\\\\')  # '\u' escape
 
-        self.loader = Loader(os.sep.join([self.root_path, template]))
+        self.loader = Loader(os.sep.join([self.root_path, templates]))
 
         # static file
         self.static_folder = static
