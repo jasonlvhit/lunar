@@ -342,6 +342,7 @@ class Template(object):
 
         while not self.scanner.empty:
             token = self.scanner.next_token
+
             # Text node , simply write it out.
             if not token:
                 self.nodes.append(
@@ -362,9 +363,9 @@ class Template(object):
                 # pop it from block stack,
                 # if stack is None, raise Exception.
                 # indent = indent - 1 at the same time.
-                if end is 'block' and len(in_block_stack) == 0:
+                if end == 'block' and in_block_stack.empty():
                     raise TemplateException("Invalid endblock tag.")
-                if end is 'block' and self.parents:
+                if end == 'block' and not ((_ext is None) != (self.parents is None)):
                     in_block_stack.pop()
                 indent -= 1
             elif keyword:
@@ -381,9 +382,9 @@ class Template(object):
                     self.nodes.append(SnippetNode(c, indent, in_block_stack.top()))
                     continue
                 elif keyword == "block":
-                    if not self.parents:
+                    if self.parents is None:
                         self.nodes.append(ChildNode(suffix))
-                        continue
+
                     self.writer.update_namespace(suffix)
                     in_block_stack.push(suffix)
                     continue
@@ -395,12 +396,14 @@ class Template(object):
                 if keyword in self.intermediate_keyword:
                     indent -= 1
                 self.nodes.append(KeyNode(
-                    ' '.join([keyword, suffix, ':']), indent, in_block_stack.pop()))
+                    ' '.join([keyword, suffix, ':']), indent, in_block_stack.top()))
                 indent += 1
             else:
                 raise TemplateException('Template syntax error.')
-        # return self if needed.
-        # return self
+
+        if not in_block_stack.empty():
+            raise TemplateException("Unmatched block")
+
 
     def render(self, *args, **context):
         for arg in args:
@@ -463,6 +466,7 @@ class LRUCache(object):
             if len(self.cache) >= self.capacity:
                 self.cache.popitem(last=False)
         self.cache[key] = value
+
 
 
 class Loader(object):

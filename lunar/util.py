@@ -39,5 +39,8 @@ class _Stack(threading.local):
     def __len__(self):
         return len(self._Stack)
 
+    def __str__(self):
+        return str(self._Stack)
+
     def empty(self):
-        return True if len(self._Stack) == 0 else False
+        return len(self._Stack) == 0
