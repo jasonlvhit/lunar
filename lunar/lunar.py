@@ -50,40 +50,7 @@ from .server import WSGIRefServer
 from .template import Loader, unescape
 from .wrappers import Request, Response
 from .router import Router, RouterException
-
-"""
-The Main object of lunar.
-"""
-
-
-class _Stack(threading.local):
-
-    def __init__(self):
-        self._Stack = []
-
-    def push(self, app):
-        self._Stack.append(app)
-
-    def pop(self):
-        try:
-            self._Stack.pop()
-        except IndexError:
-            return None
-
-    def top(self):
-        try:
-            return self._Stack[-1]
-        except IndexError:
-            return None
-
-    def __len__(self):
-        return len(self._Stack)
-
-    def empty(self):
-        return True if len(self._Stack) == 0 else False
-
-    def __repr__(self):
-        return "app_stack with %s applications" % (len(self))
+from .util import _Stack
 
 
 class LunarException(Exception):
@@ -103,6 +70,10 @@ class LunarException(Exception):
         self._server_handler(self._response.status, self._response.headerlist)
         return [self._response.body]
 
+
+"""
+The Main object of lunar.
+"""
 
 class Lunar(object):
 

@@ -1,4 +1,6 @@
-# Some useful functions
+# Some useful goodies
+
+import threading
 
 from collections import OrderedDict
 from time import time
@@ -12,3 +14,30 @@ def html_escape(s):
 
 def sqlite_escape(s):
     return s.replace('\'', '\'\'')
+
+
+class _Stack(threading.local):
+
+    def __init__(self):
+        self._Stack = []
+
+    def push(self, app):
+        self._Stack.append(app)
+
+    def pop(self):
+        try:
+            self._Stack.pop()
+        except IndexError:
+            return None
+
+    def top(self):
+        try:
+            return self._Stack[-1]
+        except IndexError:
+            return None
+
+    def __len__(self):
+        return len(self._Stack)
+
+    def empty(self):
+        return True if len(self._Stack) == 0 else False
