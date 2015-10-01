@@ -126,9 +126,9 @@ class StackTest(unittest.TestCase):
         self.assertEqual(len(self.stack), 0)
 
     def test_empty_stack(self):
-        self.assertTrue(self.stack.empty())
+        self.assertTrue(self.stack.empty)
         self.stack.push(1)
-        self.assertFalse(self.stack.empty())
+        self.assertFalse(self.stack.empty)
 
 
 class AppTest(unittest.TestCase):

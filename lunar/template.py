@@ -362,7 +362,7 @@ class Template(object):
                 # pop it from block stack,
                 # if stack is None, raise Exception.
                 # indent = indent - 1 at the same time.
-                if end == 'block' and in_block_stack.empty():
+                if end == 'block' and in_block_stack.empty:
                     raise TemplateException("Invalid endblock tag.")
                 if end == 'block':
                     in_block_stack.pop()
@@ -400,7 +400,7 @@ class Template(object):
             else:
                 raise TemplateException('Template syntax error.') # pragma: no cover
 
-        if not in_block_stack.empty():
+        if not in_block_stack.empty:
             raise TemplateException("Unmatched block")
 
 
