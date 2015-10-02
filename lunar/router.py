@@ -157,3 +157,6 @@ class Router(object):
 
     def all_callables(self):
         return self.rulesMap.values()
+
+    def remove_all_routes(self):
+        self.rulesMap.clear()

@@ -17,7 +17,7 @@ class RouterTest(unittest.TestCase):
         self.router = Router()
 
     def tearDown(self):
-        self.router = None
+        self.router.remove_all_routes()
 
     def test_register_with_not_callable(self):
         self.assertRaises(
