@@ -50,53 +50,20 @@ from .server import WSGIRefServer
 from .template import Loader, unescape
 from .wrappers import Request, Response
 from .router import Router, RouterException
-
-"""
-The Main object of lunar.
-"""
-
-
-class _Stack(threading.local):
-
-    def __init__(self):
-        self._Stack = []
-
-    def push(self, app):
-        self._Stack.append(app)
-
-    def pop(self):
-        try:
-            self._Stack.pop()
-        except IndexError:
-            return None
-
-    def top(self):
-        try:
-            return self._Stack[-1]
-        except IndexError:
-            return None
-
-    def __len__(self):
-        return len(self._Stack)
-
-    def empty(self):
-        return True if len(self._Stack) == 0 else False
-
-    def __repr__(self):
-        return "app_stack with %s applications" % (len(self))
+from .util import _Stack
 
 
 class LunarException(Exception):
 
-    def __init__(self, code, response, server_handler, DEBUG=False):
-        self._DEBUG = DEBUG
+    def __init__(self, code, response, server_handler, debug=False):
+        self._debug = debug
         self._response = response
         self._response.set_status(code)
         self._server_handler = server_handler
 
     def __call__(self):
         body = self._response.status
-        if self._DEBUG:
+        if self._debug:
             body = '<br>'.join(
                 [self._response.status, traceback.format_exc().replace('\n', '<br>')])
         self._response.set_body(body)
@@ -104,12 +71,16 @@ class LunarException(Exception):
         return [self._response.body]
 
 
+"""
+The Main object of lunar.
+"""
+
 class Lunar(object):
 
     """Main object of this funny web frameWork
     """
 
-    def __init__(self, pkg_name, template='template', static='static'):
+    def __init__(self, pkg_name, templates='templates', static='static'):
         # router
         self._router = Router()
 
@@ -123,7 +94,7 @@ class Lunar(object):
         self.root_path = self._get_package_path(
             self.package_name).replace('\\', '\\\\')  # '\u' escape
 
-        self.loader = Loader(os.sep.join([self.root_path, template]))
+        self.loader = Loader(os.sep.join([self.root_path, templates]))
 
         # static file
         self.static_folder = static
@@ -138,7 +109,7 @@ class Lunar(object):
         self._server_handler = None
 
         # debug
-        self.DEBUG = False
+        self.debug = False
 
         # config
         self.config = {}
@@ -173,15 +144,15 @@ class Lunar(object):
     def session(self):
         return self._session
 
-    def run(self, server=WSGIRefServer, host='localhost', port=8000, DEBUG=False):
-        self.DEBUG = DEBUG
+    def run(self, server=WSGIRefServer, host='localhost', port=8000, debug=False):
+        self.debug = debug
         if isinstance(server, type) and issubclass(server, ServerAdapter):
             server = server(host=host, port=port)
 
         if not isinstance(server, ServerAdapter):
             raise RuntimeError("Server must be a subclass of ServerAdapter.")
 
-        print("running on %s:%s" % (host, port))
+        print("Running on %s:%s" % (host, port))
         try:
             server.run(self)
         except KeyboardInterrupt:
@@ -337,7 +308,7 @@ class Lunar(object):
             try:
                 r = self.handle_router()
             except Exception:
-                return LunarException(500, self._response, self._server_handler, self.DEBUG)()
+                return LunarException(500, self._response, self._server_handler, self.debug)()
 
         # Static files, 302, 304 and 404
         if isinstance(r, Response):

@@ -74,7 +74,6 @@
     Hacking with fun and joy.
 
 """
-import collections
 import os
 import re
 import sys
@@ -95,6 +94,7 @@ _DEFAULT_CACHECAPACITY = 128
 _DEFAULT_STDOUT = "_stdout"
 
 from ._compat import string_escape
+from .util import _Stack, LRUCache
 
 class Scanner(object):
 
@@ -326,12 +326,7 @@ class Template(object):
 
     def _parse(self):
         indent = 0
-        in_block = []
-
-        def in_block_top():
-            if len(in_block):
-                return in_block[len(in_block) - 1]
-            return None
+        in_block_stack = _Stack()
 
         # firstly, detect the extends tag.
         # if _ext, load the parents template
@@ -346,30 +341,31 @@ class Template(object):
 
         while not self.scanner.empty:
             token = self.scanner.next_token
+
             # Text node , simply write it out.
             if not token:
                 self.nodes.append(
-                    TextNode(self.scanner.remain, indent, in_block_top()))
+                    TextNode(self.scanner.remain, indent, in_block_stack.top()))
                 break
             # write the remaining text before token.
             self.nodes.append(
-                TextNode(self.scanner.buffer_before_token, indent, in_block_top()))
+                TextNode(self.scanner.buffer_before_token, indent, in_block_stack.top()))
 
             variable, endblock, end, statement, keyword, suffix = token.groups(
             )
             # print(variable, endblock, end, statement, keyword, suffix)
             if variable:
                 self.nodes.append(
-                    VariableNode(variable, indent, in_block_top()))
+                    VariableNode(variable, indent, in_block_stack.top()))
             elif endblock:
                 # enclose a block.
                 # pop it from block stack,
                 # if stack is None, raise Exception.
                 # indent = indent - 1 at the same time.
-                if end is 'block' and len(in_block) == 0:
+                if end == 'block' and in_block_stack.empty:
                     raise TemplateException("Invalid endblock tag.")
-                if end is 'block' and self.parents:
-                    in_block.pop()
+                if end == 'block':
+                    in_block_stack.pop()
                 indent -= 1
             elif keyword:
                 if keyword == "include":
@@ -382,29 +378,31 @@ class Template(object):
                         raise TemplateException(
                             "Template path must set when include tag used.")
                     c = Loader(self.path).load(suffix).intermediate_list
-                    self.nodes.append(SnippetNode(c, indent, in_block_top()))
+                    self.nodes.append(SnippetNode(c, indent, in_block_stack.top()))
                     continue
                 elif keyword == "block":
-                    if not self.parents:
+                    if self.parents is None:
                         self.nodes.append(ChildNode(suffix))
-                        continue
+
                     self.writer.update_namespace(suffix)
-                    in_block.append(suffix)
+                    in_block_stack.push(suffix)
                     continue
                 elif keyword not in (self.intermediate_keyword + self.leading_keyword):
                     # perhaps unknown keyword?
                     self.nodes.append(KeyNode(
-                        ' '.join([keyword, suffix]), indent, in_block_top()))
+                        ' '.join([keyword, suffix]), indent, in_block_stack.top())) # pragma: no cover
                     continue
                 if keyword in self.intermediate_keyword:
                     indent -= 1
                 self.nodes.append(KeyNode(
-                    ' '.join([keyword, suffix, ':']), indent, in_block_top()))
+                    ' '.join([keyword, suffix, ':']), indent, in_block_stack.top()))
                 indent += 1
             else:
-                raise TemplateException('Template syntax error.')
-        # return self if needed.
-        # return self
+                raise TemplateException('Template syntax error.') # pragma: no cover
+
+        if not in_block_stack.empty:
+            raise TemplateException("Unmatched block")
+
 
     def render(self, *args, **context):
         for arg in args:
@@ -434,39 +432,6 @@ class Template(object):
                 _t = _t.replace(
                     g.group(), ''.join(self.writer.blocks[g.group('name')]))
         return compile(_t, '<string>', 'exec')
-
-
-class LRUCache(object):
-
-    """ Simple LRU cache for template instance caching.
-
-        in fact, the OrderedDict in collections module or
-        @functools.lru_cache is working well too.
-
-    """
-
-    def __init__(self, capacity=_DEFAULT_CACHECAPACITY):
-        self.capacity = capacity
-        self.cache = collections.OrderedDict()
-
-    def get(self, key):
-        """ Return -1 if catched KeyError exception.
-
-        """
-        try:
-            value = self.cache.pop(key)
-            self.cache[key] = value
-            return value
-        except KeyError:
-            return -1
-
-    def set(self, key, value):
-        try:
-            self.cache.pop(key)
-        except KeyError:
-            if len(self.cache) >= self.capacity:
-                self.cache.popitem(last=False)
-        self.cache[key] = value
 
 
 class Loader(object):

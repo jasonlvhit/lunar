@@ -45,7 +45,7 @@ def args():
 def post():
     if app.request.method == 'GET':
         return app.render('test_post.html')
-    return app.request.forms["title"], app.request.forms["tag"]
+    return app.request.form["title"], app.request.form["tag"]
 
 
 @app.route('/show/<int:id>')
@@ -126,9 +126,9 @@ class StackTest(unittest.TestCase):
         self.assertEqual(len(self.stack), 0)
 
     def test_empty_stack(self):
-        self.assertTrue(self.stack.empty())
+        self.assertTrue(self.stack.empty)
         self.stack.push(1)
-        self.assertFalse(self.stack.empty())
+        self.assertFalse(self.stack.empty)
 
 
 class AppTest(unittest.TestCase):
@@ -283,8 +283,8 @@ class AppTest(unittest.TestCase):
             'REQUEST_METHOD': 'POST'
         }
         r = app(env, start_response)
-        self.assertEqual(app._request.forms['title'], 'test')
-        self.assertEqual(app._request.forms['tag'], 'python')
+        self.assertEqual(app._request.form['title'], 'test')
+        self.assertEqual(app._request.form['tag'], 'python')
 
     def test_handle_router_args(self):
         env = {

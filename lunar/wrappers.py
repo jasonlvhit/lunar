@@ -72,25 +72,25 @@ class Request(BaseObject):
     def __init__(self, environ=None):
         self.environ = {} if environ is None else environ
         self._args = {}
-        self._forms = {}
+        self._form = {}
 
     def bind(self, environ):
         self.environ = environ
 
     @property
-    def forms(self):
-        if self._forms:
-            return self._forms
+    def form(self):
+        if self._form:
+            return self._form
         d = cgi.FieldStorage(
             fp=self.environ['wsgi.input'], environ=self.environ)
         for k in d:
             if isinstance(d[k], list):
-                self._forms[k] = [v.value for v in d[k]]
+                self._form[k] = [v.value for v in d[k]]
             elif d[k].filename:
-                self._forms[k] = d[k]
+                self._form[k] = d[k]
             else:
-                self._forms[k] = d[k].value
-        return self._forms
+                self._form[k] = d[k].value
+        return self._form
 
     @property
     def args(self):
