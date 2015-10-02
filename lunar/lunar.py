@@ -152,7 +152,7 @@ class Lunar(object):
         if not isinstance(server, ServerAdapter):
             raise RuntimeError("Server must be a subclass of ServerAdapter.")
 
-        print("running on %s:%s" % (host, port))
+        print("Running on %s:%s" % (host, port))
         try:
             server.run(self)
         except KeyboardInterrupt:
