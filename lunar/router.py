@@ -129,8 +129,6 @@ class Router(object):
             if m is None:
                 continue
 
-            print(method.upper())
-            print(rule.methods)
             if not method.upper() in rule.methods:
                 raise RouterException(
                     "Request method %s not allowed in this app." % method)
