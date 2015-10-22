@@ -95,6 +95,9 @@ def json_request():
 def redirect():
     return app.redirect('/')
 
+@app.route('/test_redirect_url_for')
+def redirect2():
+    return app.redirect(app.url_for(sync_args, id=1))
 
 @app.route('/redirect_with_args')
 def redirect_with_url():

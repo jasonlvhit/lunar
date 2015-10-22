@@ -80,7 +80,7 @@ class Rule(object):
             else:
                 url_parts.append(var)
 
-        return u''.join(url_parts)
+        return str(u''.join(url_parts))
 
     def build_regex(self):
         regex_parts = []
