@@ -33,6 +33,8 @@ def create_post():
     db.commit()
     for i in tags:
         post.tags.append(i)
+
+    print(app.url_for(show_post, id=post.id))
     return app.redirect(app.url_for(show_post, id=post.id))
 
 @app.route('/post/<int:id>')
