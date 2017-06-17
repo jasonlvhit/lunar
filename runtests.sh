@@ -1,5 +1,3 @@
 #!/bin/sh
-#python3 -m unittest discover tests
-cd tests
-python -m unittest discover
+python3 -m unittest discover tests
 #py.test --cov-report term-missing tests --cov lunar

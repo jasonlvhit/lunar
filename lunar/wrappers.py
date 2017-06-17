@@ -4,7 +4,9 @@ import threading
 
 from collections import MutableMapping
 
-from ._compat import httplib, SimpleCookie, parse_qs
+import http.client as httplib
+from http.cookies import SimpleCookie
+from urllib.parse import parse_qs
 
 """
 A simple wrapper for base WSGI request and response.

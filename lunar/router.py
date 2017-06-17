@@ -1,7 +1,7 @@
 import sys
 import re
 
-from ._compat import parse_qs
+from urllib.parse import parse_qs
 
 
 rule_pattern = re.compile(

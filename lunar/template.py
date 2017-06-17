@@ -93,7 +93,8 @@ _DEFAULT_CACHECAPACITY = 128
 # statement of Python code
 _DEFAULT_STDOUT = "_stdout"
 
-from ._compat import string_escape
+string_escape = "unicode_escape"
+
 from .util import _Stack, LRUCache
 
 class Scanner(object):
