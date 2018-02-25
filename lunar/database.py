@@ -244,7 +244,7 @@ class Model(MetaModel('NewBase', (object, ), {})):
         for k, v in self.__refed_fields__.items():
             if isinstance(v, ForeignKeyReverseField) or isinstance(v, ManyToManyField):
                 v.id = self.id
-                t = copy.deepcopy(v)
+                t = copy.copy(v)
                 setattr(t, 'db', v.db)
                 setattr(self, k, t)
 
@@ -394,10 +394,7 @@ class SelectQuery(BaseQuery):
 
     def _make_instance(self, descriptor, r):
         # must handle empty case.
-        try:
-            ins = self.klass(**dict(zip(descriptor, r)))
-        except TypeError:
-            return None
+        ins = self.klass(**dict(zip(descriptor, r)))
         for _, rf in ins.__dict__.items():
             if isinstance(rf, ManyToManyField) or isinstance(rf, ForeignKeyReverseField):
                 rf.id = ins.id
