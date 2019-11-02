@@ -18,16 +18,17 @@ def setup_database():
 
     for i in range(1, 6):
         get_cursor().execute(
-            'insert into author(name) values("test author ' + str(i) + '");')
+            'insert into author(name) values("test author ' + str(i) + '");'
+        )
 
     for i in range(1, 6):
         get_cursor().execute(
-            'insert into self_define_post(title, content, author_id) values("test title %s", "test content %s", %s);' % (
-                str(i), str(i), str(i)))
+            'insert into self_define_post(title, content, author_id) values("test title %s", "test content %s", %s);'
+            % (str(i), str(i), str(i))
+        )
 
     for i in range(1, 6):
-        get_cursor().execute(
-            'insert into tag(name) values("test tag ' + str(i) + '");')
+        get_cursor().execute('insert into tag(name) values("test tag ' + str(i) + '");')
 
 
 def teardown_database():
@@ -38,7 +39,6 @@ def teardown_database():
 
 
 class BaseTests(unittest.TestCase):
-
     def setUp(self):
         setup_database()
 
@@ -65,68 +65,68 @@ class BaseTests(unittest.TestCase):
 
     def test_init(self):
         init_dict = {
-            'author': Author,
-            'tag': Tag,
-            'post_tag_re': Post_Tag_Re,
-            'self_define_post': Post,
+            "author": Author,
+            "tag": Tag,
+            "post_tag_re": Post_Tag_Re,
+            "self_define_post": Post,
         }
 
         self.assertEqual(init_dict, db.__tabledict__)
 
 
 class ModelTests(BaseTests):
-
     def test_self_define_tablename(self):
-        self.assertEqual(Post.__tablename__, 'self_define_post')
+        self.assertEqual(Post.__tablename__, "self_define_post")
 
     def test_default_tablename(self):
-        self.assertEqual(Author.__tablename__, 'author')
+        self.assertEqual(Author.__tablename__, "author")
 
     def test_fields(self):
         post_fields = {
-            'pub_date': database.DateField,
-            'title': database.CharField,
-            'author_id': database.ForeignKeyField,
-            'id': database.PrimaryKeyField,
-            'content': database.TextField
+            "pub_date": database.DateField,
+            "title": database.CharField,
+            "author_id": database.ForeignKeyField,
+            "id": database.PrimaryKeyField,
+            "content": database.TextField,
         }
         self.assertEqual(post_fields.keys(), Post.__fields__.keys())
 
     def test_refed_fields(self):
-        post_refed_fields = ['tags']
-        tag_refed_fields = ['posts']
-        self.assertEqual(
-            [i for i in Post.__refed_fields__.keys()], post_refed_fields)
-        self.assertEqual(
-            [i for i in Tag.__refed_fields__.keys()], tag_refed_fields)
+        post_refed_fields = ["tags"]
+        tag_refed_fields = ["posts"]
+        self.assertEqual([i for i in Post.__refed_fields__.keys()], post_refed_fields)
+        self.assertEqual([i for i in Tag.__refed_fields__.keys()], tag_refed_fields)
 
     def test_relationship(self):
         pass
 
 
 class QueryTests(BaseTests):
-
     def test_add(self):
-        author = Author(name='test author 6')
+        author = Author(name="test author 6")
         db.add(author)
         db.commit()
-        post = Post(title='test title 6', content='test content 6',
-                    author_id='6', pub_date=datetime.now())
+        post = Post(
+            title="test title 6",
+            content="test content 6",
+            author_id="6",
+            pub_date=datetime.now(),
+        )
         db.add(post)
         db.commit()
-        c = db.execute('select * from author;')
+        c = db.execute("select * from author;")
         self.assertEqual(len(c.fetchall()), 6)
-        c = db.execute('select * from self_define_post;')
+        c = db.execute("select * from self_define_post;")
         self.assertEqual(len(c.fetchall()), 6)
 
     def test_get(self):
         p1 = Post.get(id=1)
-        self.assertEqual(p1.title, 'test title 1')
-        self.assertEqual(p1.content, 'test content 1')
+        self.assertEqual(p1.title, "test title 1")
+        self.assertEqual(p1.content, "test content 1")
         self.assertEqual(p1.author_id, 1)
 
     def test_select(self):
-        p1 = Post.select('*').where(id=2).all()
+        p1 = Post.select("*").where(id=2).all()
         self.assertEqual(len(p1), 1)
         self.assertEqual(p1[0].id, 2)
         p2 = Post.select().where("id < 5").all()
@@ -142,14 +142,14 @@ class QueryTests(BaseTests):
         p2 = Post.delete(id=1).commit()
         self.assertEqual(p2.rowcount, 0)
 
-        p3 = Post.delete('id < 3').commit()
+        p3 = Post.delete("id < 3").commit()
         self.assertEqual(p3.rowcount, 1)
 
     def test_update(self):
         p1 = Post.update(id=5).set(title="new title 5").commit()
         self.assertEqual(p1.rowcount, 1)
         p2 = Post.get(id=5)
-        self.assertEqual(p2.title, 'new title 5')
+        self.assertEqual(p2.title, "new title 5")
         p3 = Post.update(id=-1).set(title="unexisted id").commit()
         self.assertEqual(p3.rowcount, 0)
 
@@ -159,22 +159,21 @@ class QueryTests(BaseTests):
         self.assertEqual(posts[0].id, 5)
 
     def test_orderby(self):
-        posts = Post.select().orderby('id', 'asc').all()
+        posts = Post.select().orderby("id", "asc").all()
         self.assertEqual([p.id for p in posts], [1, 2, 3, 4, 5])
-        posts = Post.select().orderby('id', 'desc').all()
+        posts = Post.select().orderby("id", "desc").all()
         self.assertEqual([p.id for p in posts], [5, 4, 3, 2, 1])
 
     def test_like(self):
-        posts = Post.select().where('content').like("test%").all()
+        posts = Post.select().where("content").like("test%").all()
         self.assertEqual([p.id for p in Post.select().all()], [i.id for i in posts])
-        posts = Post.select().where('id').like("1").all()
+        posts = Post.select().where("id").like("1").all()
         self.assertEqual([Post.get(id=1).id], [p.id for p in posts])
-        posts = Post.select().where('content').like('%est%').all()
+        posts = Post.select().where("content").like("%est%").all()
         self.assertEqual([p.id for p in Post.select().all()], [i.id for i in posts])
 
 
 class ManytoManyFieldsTest(BaseTests):
-
     def test_mtom_append(self):
         p = Post.get(id=1)
         t1 = Tag.get(id=1)
@@ -205,7 +204,6 @@ class ManytoManyFieldsTest(BaseTests):
 
 
 class TestBasicFunction(BaseTests):
-
     def test_count(self):
         c1 = Post.select().count()
         self.assertEqual(c1, 5)
@@ -213,25 +211,25 @@ class TestBasicFunction(BaseTests):
         self.assertEqual(c2, 2)
 
     def test_max(self):
-        c1 = Post.select('id').max()
+        c1 = Post.select("id").max()
         self.assertEqual(c1, 5)
-        c2 = Post.select('id').where('id < 3').max()
+        c2 = Post.select("id").where("id < 3").max()
         self.assertEqual(c2, 2)
-        c3 = Post.select('id').where('id > 10').max()
+        c3 = Post.select("id").where("id > 10").max()
         self.assertEqual(c3, None)
 
     def test_min(self):
-        c1 = Post.select('id').min()
+        c1 = Post.select("id").min()
         self.assertEqual(c1, 1)
 
     def test_avg(self):
-        c1 = Post.select('id').avg()
+        c1 = Post.select("id").avg()
         self.assertEqual(c1, 3)
 
     def test_sum(self):
-        c1 = Post.select('id').sum()
+        c1 = Post.select("id").sum()
         self.assertEqual(c1, 15)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pass

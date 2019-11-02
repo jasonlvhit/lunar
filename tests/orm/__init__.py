@@ -1,3 +1,3 @@
 from lunar import database
 
-db = database.Sqlite('lunar.db')
+db = database.Sqlite("lunar.db")

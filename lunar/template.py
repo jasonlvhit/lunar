@@ -97,6 +97,7 @@ string_escape = "unicode_escape"
 
 from .util import _Stack, LRUCache
 
+
 class Scanner(object):
 
     """ Scanner is a inner class of Template which provide
@@ -108,13 +109,16 @@ class Scanner(object):
         self.source = source
         self.cur = 0
         # regular expressions for token catching.
-        self.re_token = re.compile(r'''
+        self.re_token = re.compile(
+            r"""
         {{\s+(?P<var>.+?)\s+}} # variable
         | # or
         {%\s+(?P<endblock>end(if|for|try|while|block))\s+%} # endblock
         | # or
         {%\s+(?P<statement>(?P<keyword>\w+)\s*(.*?))\s+%} # statement
-        ''', re.VERBOSE)
+        """,
+            re.VERBOSE,
+        )
 
         # buffer for readed but not used token.
         self.buffer = []
@@ -123,7 +127,7 @@ class Scanner(object):
     def remain(self):
         """ Get remaining text which have not been processed.
         """
-        return self.source[self.cur:]
+        return self.source[self.cur :]
 
     @property
     def next_token(self):
@@ -139,7 +143,7 @@ class Scanner(object):
         # move forward.
         s = p.start()
         self.buffer.append(self.remain[:s].encode(string_escape))
-        self.cur += (s + len(p.group()))
+        self.cur += s + len(p.group())
 
         return p
 
@@ -150,7 +154,7 @@ class Scanner(object):
             TODO: maybe a better solution for unicode or bytes processing.
 
         """
-        r = ''.join(i for i in map(lambda x: x.decode('utf-8'), self.buffer))
+        r = "".join(i for i in map(lambda x: x.decode("utf-8"), self.buffer))
         self.buffer = []
         return r
 
@@ -169,14 +173,14 @@ class Scanner(object):
         When the template system evaluates this template, first it locates the parent.
         The extends tag should be the first tag in the template.
         """
-        p = re.compile(r'^{%\s+(extends\s*(?P<parent>.*))\s+%}')
+        p = re.compile(r"^{%\s+(extends\s*(?P<parent>.*))\s+%}")
         e = p.match(self.source)
         # extends detact must be done at the begining of parsing.
         # return None if there is no extends tag.
         if not e:
             return None
         self.cur += len(e.group())
-        return e.group('parent')
+        return e.group("parent")
 
 
 class BaseNode(object):
@@ -209,8 +213,7 @@ class KeyNode(BaseNode):
     """
 
     def generate(self, wfile):
-        self._write(
-            ''.join([' ' * self.indent, self.text, '\n']), wfile)
+        self._write("".join([" " * self.indent, self.text, "\n"]), wfile)
 
 
 class TextNode(BaseNode):
@@ -221,9 +224,12 @@ class TextNode(BaseNode):
 
     def generate(self, wfile):
 
-        self._write(''.join(
-            [' ' * self.indent, wfile.stdout,
-             '.append(\'\'\'', self.text, '\'\'\')\n']), wfile)
+        self._write(
+            "".join(
+                [" " * self.indent, wfile.stdout, ".append('''", self.text, "''')\n"]
+            ),
+            wfile,
+        )
 
 
 class VariableNode(BaseNode):
@@ -234,31 +240,30 @@ class VariableNode(BaseNode):
     """
 
     def generate(self, wfile):
-        self._write(''.join([' ' * self.indent, wfile.stdout,
-                             '.append(str(', self.text, '))\n']), wfile)
+        self._write(
+            "".join(
+                [" " * self.indent, wfile.stdout, ".append(str(", self.text, "))\n"]
+            ),
+            wfile,
+        )
 
 
 class SnippetNode(BaseNode):
-
     def generate(self, wfile):
-        p = re.compile(r'\n')
-        self.text = re.compile(r'(\s+\n)+').sub('\n', ''.join(self.text))
-        wfile.intermediate.append(
-            p.sub(''.join(['\n', ' ' * self.indent]), self.text))
+        p = re.compile(r"\n")
+        self.text = re.compile(r"(\s+\n)+").sub("\n", "".join(self.text))
+        wfile.intermediate.append(p.sub("".join(["\n", " " * self.indent]), self.text))
 
 
 class ChildNode(BaseNode):
-
     def __init__(self, name):
         self.name = name
 
     def generate(self, wfile):
-        wfile.intermediate.append(
-            ''.join(['block%', self.name, '\n']))
+        wfile.intermediate.append("".join(["block%", self.name, "\n"]))
 
 
 class Writer(object):
-
     def __init__(self):
         self.stdout = _DEFAULT_STDOUT
         self.blocks = {}
@@ -298,8 +303,9 @@ class Template(object):
     and be serious, and I am very serious too.
 
     """
-    leading_keyword = ['if', 'try', 'while', 'for']
-    intermediate_keyword = ['else', 'elif', 'except', 'finally']
+
+    leading_keyword = ["if", "try", "while", "for"]
+    intermediate_keyword = ["else", "elif", "except", "finally"]
 
     def __init__(self, source, path=None, escape_option=None):
 
@@ -334,10 +340,9 @@ class Template(object):
         _ext = self.scanner.extends
         if _ext:
             # trim the quotes
-            _ext = re.sub(r'\'|\"', '', _ext)
+            _ext = re.sub(r"\'|\"", "", _ext)
             if self.path is None:
-                raise TemplateException(
-                    "Template path must set when extends tag used.")
+                raise TemplateException("Template path must set when extends tag used.")
             self.parents = Loader(self.path).load(_ext)
 
         while not self.scanner.empty:
@@ -346,26 +351,26 @@ class Template(object):
             # Text node , simply write it out.
             if not token:
                 self.nodes.append(
-                    TextNode(self.scanner.remain, indent, in_block_stack.top()))
+                    TextNode(self.scanner.remain, indent, in_block_stack.top())
+                )
                 break
             # write the remaining text before token.
             self.nodes.append(
-                TextNode(self.scanner.buffer_before_token, indent, in_block_stack.top()))
-
-            variable, endblock, end, statement, keyword, suffix = token.groups(
+                TextNode(self.scanner.buffer_before_token, indent, in_block_stack.top())
             )
+
+            variable, endblock, end, statement, keyword, suffix = token.groups()
             # print(variable, endblock, end, statement, keyword, suffix)
             if variable:
-                self.nodes.append(
-                    VariableNode(variable, indent, in_block_stack.top()))
+                self.nodes.append(VariableNode(variable, indent, in_block_stack.top()))
             elif endblock:
                 # enclose a block.
                 # pop it from block stack,
                 # if stack is None, raise Exception.
                 # indent = indent - 1 at the same time.
-                if end == 'block' and in_block_stack.empty:
+                if end == "block" and in_block_stack.empty:
                     raise TemplateException("Invalid endblock tag.")
-                if end == 'block':
+                if end == "block":
                     in_block_stack.pop()
                 indent -= 1
             elif keyword:
@@ -373,11 +378,12 @@ class Template(object):
                     # child template:
                     # get child template intermediate code
                     # update it into namespace
-                    suffix = re.sub(r'\'|\"', '', suffix)
+                    suffix = re.sub(r"\'|\"", "", suffix)
 
                     if self.path is None:
                         raise TemplateException(
-                            "Template path must set when include tag used.")
+                            "Template path must set when include tag used."
+                        )
                     c = Loader(self.path).load(suffix).intermediate_list
                     self.nodes.append(SnippetNode(c, indent, in_block_stack.top()))
                     continue
@@ -390,20 +396,25 @@ class Template(object):
                     continue
                 elif keyword not in (self.intermediate_keyword + self.leading_keyword):
                     # perhaps unknown keyword?
-                    self.nodes.append(KeyNode(
-                        ' '.join([keyword, suffix]), indent, in_block_stack.top())) # pragma: no cover
+                    self.nodes.append(
+                        KeyNode(
+                            " ".join([keyword, suffix]), indent, in_block_stack.top()
+                        )
+                    )  # pragma: no cover
                     continue
                 if keyword in self.intermediate_keyword:
                     indent -= 1
-                self.nodes.append(KeyNode(
-                    ' '.join([keyword, suffix, ':']), indent, in_block_stack.top()))
+                self.nodes.append(
+                    KeyNode(
+                        " ".join([keyword, suffix, ":"]), indent, in_block_stack.top()
+                    )
+                )
                 indent += 1
             else:
-                raise TemplateException('Template syntax error.') # pragma: no cover
+                raise TemplateException("Template syntax error.")  # pragma: no cover
 
         if not in_block_stack.empty:
             raise TemplateException("Unmatched block")
-
 
     def render(self, *args, **context):
         for arg in args:
@@ -415,24 +426,22 @@ class Template(object):
         #       if isinstance(v, str):
         #            context[k] = html_escape(v)
 
-        context['_stdout'] = []
+        context["_stdout"] = []
         exec(self.intermediate, context)
-        return re.sub(r'(\s+\n)+', '\n', ''.join(context[self.writer.stdout]))
+        return re.sub(r"(\s+\n)+", "\n", "".join(context[self.writer.stdout]))
 
     def _compile(self):
         # Process parent template files firstly.
         if self.parents:
-            self.writer.intermediate \
-                = self.parents.writer.intermediate
+            self.writer.intermediate = self.parents.writer.intermediate
 
         # Update blocks
-        pattern = re.compile(r'block%(?P<name>\w+)')
-        _t = ''.join(self.writer.intermediate)
+        pattern = re.compile(r"block%(?P<name>\w+)")
+        _t = "".join(self.writer.intermediate)
         for g in pattern.finditer(_t):
-            if g.group('name') in self.writer.blocks.keys():
-                _t = _t.replace(
-                    g.group(), ''.join(self.writer.blocks[g.group('name')]))
-        return compile(_t, '<string>', 'exec')
+            if g.group("name") in self.writer.blocks.keys():
+                _t = _t.replace(g.group(), "".join(self.writer.blocks[g.group("name")]))
+        return compile(_t, "<string>", "exec")
 
 
 class Loader(object):
@@ -448,9 +457,13 @@ class Loader(object):
     templates for performance consideration.
     """
 
-    def __init__(self, root='', engine=Template,
-                 escape_option=_DEFAULT_ESCAPE_OPTION,
-                 cache_capacity=_DEFAULT_CACHECAPACITY):
+    def __init__(
+        self,
+        root="",
+        engine=Template,
+        escape_option=_DEFAULT_ESCAPE_OPTION,
+        cache_capacity=_DEFAULT_CACHECAPACITY,
+    ):
         self.root = root
         self.engine = engine
 
@@ -466,9 +479,9 @@ class Loader(object):
         self.escape_option = escape_option
 
     def load(self, filename):
-        if not self.root.endswith(os.sep) and self.root != '':
+        if not self.root.endswith(os.sep) and self.root != "":
             self.root += os.sep
-        p = ''.join([self.root, filename])
+        p = "".join([self.root, filename])
 
         # Use the cached template instance firstly
         # TODO: add LRU tests.
@@ -486,9 +499,15 @@ class Loader(object):
 
 # TODO: remove this function
 
+
 def unescape(s):
     """ unescape html tokens.
         <p>{{ unescape(content) }}</p>
     """
-    return s.replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>')\
-        .replace('&quot;', '"').replace('&#039;', "'")
+    return (
+        s.replace("&amp;", "&")
+        .replace("&lt;", "<")
+        .replace("&gt;", ">")
+        .replace("&quot;", '"')
+        .replace("&#039;", "'")
+    )

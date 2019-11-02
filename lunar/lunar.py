@@ -29,12 +29,12 @@ import mimetypes
 
 from functools import wraps
 
-if sys.version < '3':
+if sys.version < "3":
     from urllib import quote
     import sys
 
     reload(sys)
-    sys.setdefaultencoding('utf8')
+    sys.setdefaultencoding("utf8")
 else:
     from urllib.parse import quote
 
@@ -54,7 +54,6 @@ from .util import _Stack
 
 
 class LunarException(Exception):
-
     def __init__(self, code, response, server_handler, debug=False):
         self._debug = debug
         self._response = response
@@ -64,8 +63,9 @@ class LunarException(Exception):
     def __call__(self):
         body = self._response.status
         if self._debug:
-            body = '<br>'.join(
-                [self._response.status, traceback.format_exc().replace('\n', '<br>')])
+            body = "<br>".join(
+                [self._response.status, traceback.format_exc().replace("\n", "<br>")]
+            )
         self._response.set_body(body)
         self._server_handler(self._response.status, self._response.headerlist)
         return [self._response.body]
@@ -75,12 +75,13 @@ class LunarException(Exception):
 The Main object of lunar.
 """
 
+
 class Lunar(object):
 
     """Main object of this funny web frameWork
     """
 
-    def __init__(self, pkg_name, templates='templates', static='static'):
+    def __init__(self, pkg_name, templates="templates", static="static"):
         # router
         self._router = Router()
 
@@ -91,8 +92,9 @@ class Lunar(object):
         # template
         self.package_name = pkg_name
         #: where is the app root located?
-        self.root_path = self._get_package_path(
-            self.package_name).replace('\\', '\\\\')  # '\u' escape
+        self.root_path = self._get_package_path(self.package_name).replace(
+            "\\", "\\\\"
+        )  # '\u' escape
 
         self.loader = Loader(os.sep.join([self.root_path, templates]))
 
@@ -113,7 +115,7 @@ class Lunar(object):
 
         # config
         self.config = {}
-        self.config.setdefault('DATABASE_NAME', 'lunar.db')
+        self.config.setdefault("DATABASE_NAME", "lunar.db")
 
         # push to the _app_stack
         global app_stack
@@ -129,7 +131,7 @@ class Lunar(object):
         except (KeyError, AttributeError):
             return os.getcwd()
 
-    def route(self, path=None, methods=['GET']):
+    def route(self, path=None, methods=["GET"]):
         if path is None:
             raise RouterException()
         methods = [m.upper() for m in methods]
@@ -144,7 +146,7 @@ class Lunar(object):
     def session(self):
         return self._session
 
-    def run(self, server=WSGIRefServer, host='localhost', port=8000, debug=False):
+    def run(self, server=WSGIRefServer, host="localhost", port=8000, debug=False):
         self.debug = debug
         if isinstance(server, type) and issubclass(server, ServerAdapter):
             server = server(host=host, port=port)
@@ -160,7 +162,7 @@ class Lunar(object):
 
     def jsonify(self, *args, **kwargs):
         response = Response(body=json.dumps(dict(*args, **kwargs)), code=200)
-        response.set_content_type('application/json')
+        response.set_content_type("application/json")
         return response
 
     def render(self, file, **context):
@@ -170,18 +172,18 @@ class Lunar(object):
         return self.loader.load(file).render(**context)
 
     def not_found(self):
-        response = Response(body='<h1>404 Not Found</h1>', code=404)
+        response = Response(body="<h1>404 Not Found</h1>", code=404)
         return response
 
     def not_modified(self):
-        response = Response('', code=304)
+        response = Response("", code=304)
         # We don't need Content-Type here.
-        del (response.headers['Content-Type'])
+        del response.headers["Content-Type"]
         return response
 
     def redirect(self, location, code=302):
-        response = Response(body='<p>Redirecting...</p>', code=code)
-        response.headers['Location'] = location
+        response = Response(body="<p>Redirecting...</p>", code=code)
+        response.headers["Location"] = location
         return response
 
     def url_for(self, fn, filename=None, **kwargs):
@@ -202,24 +204,24 @@ class Lunar(object):
 
     def construct_url(self, filename):
         environ = self._request.headers
-        url = environ['wsgi.url_scheme'] + '://'
-        if environ.get('HTTP_HOST'):
-            url += environ['HTTP_HOST']
+        url = environ["wsgi.url_scheme"] + "://"
+        if environ.get("HTTP_HOST"):
+            url += environ["HTTP_HOST"]
         else:
-            url += environ['SERVER_NAME']
+            url += environ["SERVER_NAME"]
 
-            if environ['wsgi.url_scheme'] == 'https':
-                if environ['SERVER_PORT'] != '443':
-                    url += ':' + environ['SERVER_PORT']
+            if environ["wsgi.url_scheme"] == "https":
+                if environ["SERVER_PORT"] != "443":
+                    url += ":" + environ["SERVER_PORT"]
             else:
-                if environ['SERVER_PORT'] != '80':
-                    url += ':' + environ['SERVER_PORT']
+                if environ["SERVER_PORT"] != "80":
+                    url += ":" + environ["SERVER_PORT"]
 
-        url += quote(environ.get('SCRIPT_NAME', ''))
-        if environ.get('QUERY_STRING'):
-            url += '?' + environ['QUERY_STRING']
+        url += quote(environ.get("SCRIPT_NAME", ""))
+        if environ.get("QUERY_STRING"):
+            url += "?" + environ["QUERY_STRING"]
 
-        url += '/' + '/'.join([self.static_folder, filename])
+        url += "/" + "/".join([self.static_folder, filename])
         return url
 
     @property
@@ -231,7 +233,7 @@ class Lunar(object):
         return self._response
 
     def get_content_type(self):
-        fallback_content_type = 'text/plain'
+        fallback_content_type = "text/plain"
         mime_type = mimetypes.guess_type(self.abspath)[0]
         if mime_type:
             return mime_type
@@ -248,13 +250,14 @@ class Lunar(object):
         if_modified_since_str = self._request.if_modified_since
         if if_modified_since_str:
             if_modified_since_time = time.strptime(
-                if_modified_since_str, "%a, %d %b %Y %H:%M:%S %Z")
+                if_modified_since_str, "%a, %d %b %Y %H:%M:%S %Z"
+            )
             if if_modified_since_time >= self.modified:
                 return True
         return False
 
     def is_static_file_request(self):
-        return self._request.path.lstrip('/').startswith(self.static_folder)
+        return self._request.path.lstrip("/").startswith(self.static_folder)
 
     def handle_static(self, path):
         response = Response(None)
@@ -273,19 +276,19 @@ class Lunar(object):
         if self.should_return_304():
             return self.not_modified()
 
-        if 'Last-Modified' not in response.headers.keys():
+        if "Last-Modified" not in response.headers.keys():
             last_modified_str = time.strftime(
-                "%a, %d %b %Y %H:%M:%S UTC", self.modified)
-            response.headers['Last-Modified'] = last_modified_str
+                "%a, %d %b %Y %H:%M:%S UTC", self.modified
+            )
+            response.headers["Last-Modified"] = last_modified_str
 
-        with open(self.abspath, 'r') as f:
+        with open(self.abspath, "r") as f:
             response.set_body(body=(f.read()))
         return response
 
     def handle_router(self):
         try:
-            handler, args = self._router.get(
-                self._request.path, self._request.method)
+            handler, args = self._router.get(self._request.path, self._request.method)
         # No handler is found, we assume it's a 404.
         except TypeError:
             return self.not_found()
@@ -308,7 +311,9 @@ class Lunar(object):
             try:
                 r = self.handle_router()
             except Exception:
-                return LunarException(500, self._response, self._server_handler, self.debug)()
+                return LunarException(
+                    500, self._response, self._server_handler, self.debug
+                )()
 
         # Static files, 302, 304 and 404
         if isinstance(r, Response):
@@ -333,7 +338,7 @@ app_stack = _Stack()
 # default app
 default_app = app_stack.top()
 if not default_app:  # hack for shell
-    default_app = Lunar('/')
+    default_app = Lunar("/")
 
 # shell
 request = app_stack.top().request

@@ -23,8 +23,10 @@ class HttpHeaders(MutableMapping):
     """
 
     def __init__(self, *args, **kwargs):
-        self._dict = dict((HttpHeaders.normalize_key(k), [v]) for (
-            k, v) in dict(*args, **kwargs).items())
+        self._dict = dict(
+            (HttpHeaders.normalize_key(k), [v])
+            for (k, v) in dict(*args, **kwargs).items()
+        )
 
     def __setitem__(self, key, value):
         self._dict.setdefault(HttpHeaders.normalize_key(key), []).append(value)
@@ -66,11 +68,11 @@ class BaseObject(threading.local):
     """Base class for request and response.
     Provide a thread safe space.
     """
+
     pass
 
 
 class Request(BaseObject):
-
     def __init__(self, environ=None):
         self.environ = {} if environ is None else environ
         self._args = {}
@@ -83,8 +85,7 @@ class Request(BaseObject):
     def form(self):
         if self._form:
             return self._form
-        d = cgi.FieldStorage(
-            fp=self.environ['wsgi.input'], environ=self.environ)
+        d = cgi.FieldStorage(fp=self.environ["wsgi.input"], environ=self.environ)
         for k in d:
             if isinstance(d[k], list):
                 self._form[k] = [v.value for v in d[k]]
@@ -108,7 +109,7 @@ class Request(BaseObject):
 
     @property
     def path(self):
-        return '/' + self.environ.get("PATH_INFO", '').lstrip('/')
+        return "/" + self.environ.get("PATH_INFO", "").lstrip("/")
 
     @property
     def headers(self):
@@ -116,24 +117,23 @@ class Request(BaseObject):
 
     @property
     def method(self):
-        return self.environ.get('REQUEST_METHOD', 'GET')
+        return self.environ.get("REQUEST_METHOD", "GET")
 
     @property
     def query(self):
-        return self.environ.get('QUERY_STRING', '')
+        return self.environ.get("QUERY_STRING", "")
 
     @property
     def cookies(self):
-        return SimpleCookie(self.environ.get('HTTP_COOKIE', ''))
+        return SimpleCookie(self.environ.get("HTTP_COOKIE", ""))
 
     @property
     def if_modified_since(self):
-        return self.environ.get('HTTP_IF_MODIFIED_SINCE', '')
+        return self.environ.get("HTTP_IF_MODIFIED_SINCE", "")
 
 
 class Response(BaseObject):
-
-    def __init__(self, body, code=200, content_type='text/html'):
+    def __init__(self, body, code=200, content_type="text/html"):
         self.headers = HttpHeaders()
         self._cookies = None
         self._status = code
@@ -172,14 +172,15 @@ class Response(BaseObject):
     def set_body(self, body):
         self._body = str(body)
         # Python 3 bytes hack
-        if sys.version > '3':
-            self._body = bytes(self._body, 'utf-8')
+        if sys.version > "3":
+            self._body = bytes(self._body, "utf-8")
 
     def get_content_type(self):
-        return self.headers['Content-Type']
+        return self.headers["Content-Type"]
 
     def set_content_type(self, value):
-        self.headers['Content-Type'] = value
+        self.headers["Content-Type"] = value
 
     content_type = property(
-        get_content_type, set_content_type, None, get_content_type.__doc__)
+        get_content_type, set_content_type, None, get_content_type.__doc__
+    )
